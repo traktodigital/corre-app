@@ -1,26 +1,15 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  Gift,
-  Home,
-  LucideIcon,
-  Package,
-  User,
-  Wallet,
-} from 'lucide-react-native';
+import { Gift, Home, LucideIcon, User, Wallet } from 'lucide-react-native';
 import { glow, useTheme } from '../../theme';
 import { Text } from '../ui/Text';
 
-export type TabKey =
-  | 'inicio'
-  | 'entregas'
-  | 'beneficios'
-  | 'carteira'
-  | 'perfil';
+// TODO(fase-2): aba 'entregas' (km rodado, apps, PDF de corridas — equipe Hank).
+export type TabKey = 'inicio' | 'beneficios' | 'carteira' | 'perfil';
 
 export const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: 'inicio', label: 'Início', icon: Home },
-  { key: 'entregas', label: 'Entregas', icon: Package },
+  // { key: 'entregas', label: 'Entregas', icon: Package }, // fase 2
   { key: 'beneficios', label: 'Benefícios', icon: Gift },
   { key: 'carteira', label: 'Carteira', icon: Wallet },
   { key: 'perfil', label: 'Perfil', icon: User },

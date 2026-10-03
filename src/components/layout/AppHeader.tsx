@@ -7,7 +7,8 @@ import { Logo } from './Logo';
 /** Header fixo do AppShell web: logo à esquerda, sino com ponto neon. */
 export function AppHeader({
   onPressNotifications,
-  hasUnread = true,
+  // TODO(fase-2): avisos da associação (tabela `comunicados`) acendem o ponto.
+  hasUnread = false,
 }: {
   onPressNotifications?: () => void;
   hasUnread?: boolean;

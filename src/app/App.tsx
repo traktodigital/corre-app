@@ -10,22 +10,25 @@ import {
   NavigationContainer,
   Theme as NavTheme,
 } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Construction } from 'lucide-react-native';
 import {
-  AppShell,
-  IntroSplash,
-  Screen,
-  TabKey,
-  tabs,
-} from '../components/layout';
-import { EmptyState } from '../components/ui';
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
+import { AppShell, IntroSplash, TabKey } from '../components/layout';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { ConfirmEmailScreen } from '../features/auth/ConfirmEmailScreen';
 import { LoginScreen } from '../features/auth/LoginScreen';
 import { SignupScreen } from '../features/auth/SignupScreen';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
+import { FiliacaoScreen } from '../features/carteira/FiliacaoScreen';
+import { CarteiraScreen } from '../features/carteira/screen';
+import { BeneficiosScreen } from '../features/clube/BeneficiosScreen';
+import { OfertaScreen } from '../features/clube/OfertaScreen';
+import { ParceiroScreen } from '../features/clube/ParceiroScreen';
+import { ResgateScreen } from '../features/clube/ResgateScreen';
 import { HomeScreen } from '../features/home/screen';
+import { EditarPerfilScreen } from '../features/profile/EditarPerfilScreen';
+import { HistoricoScreen } from '../features/profile/HistoricoScreen';
 import { ProfileScreen } from '../features/profile/screen';
 import { darkColors, ThemeProvider } from '../theme';
 import type { RootStackParamList } from './navigation';
@@ -45,29 +48,28 @@ const navTheme: NavTheme = {
   },
 };
 
-function EmBreve({ tab }: { tab: TabKey }) {
-  const label = tabs.find(t => t.key === tab)?.label ?? '';
-  return (
-    <Screen>
-      <EmptyState
-        icon={Construction}
-        title={`${label} em breve`}
-        description="Essa tela chega junto com a integração do backend."
-      />
-    </Screen>
-  );
-}
+/** Telas empilhadas por cima das abas: header nativo com "voltar". */
+const comHeader = (title: string): NativeStackNavigationOptions => ({
+  headerShown: true,
+  title,
+  headerStyle: { backgroundColor: darkColors.background },
+  headerTintColor: darkColors.foreground,
+  headerShadowVisible: false,
+  headerBackButtonDisplayMode: 'minimal',
+});
 
 function MainTabs() {
   const [tab, setTab] = useState<TabKey>('inicio');
   return (
     <AppShell activeTab={tab} onChangeTab={setTab}>
       {tab === 'inicio' ? (
-        <HomeScreen />
-      ) : tab === 'perfil' ? (
-        <ProfileScreen />
+        <HomeScreen onIrPara={setTab} />
+      ) : tab === 'beneficios' ? (
+        <BeneficiosScreen />
+      ) : tab === 'carteira' ? (
+        <CarteiraScreen />
       ) : (
-        <EmBreve tab={tab} />
+        <ProfileScreen />
       )}
     </AppShell>
   );
@@ -85,7 +87,39 @@ function RootNavigator() {
       }}
     >
       {dentro ? (
-        <Stack.Screen name="Main" component={MainTabs} />
+        <>
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen
+            name="Parceiro"
+            component={ParceiroScreen}
+            options={comHeader('Parceiro')}
+          />
+          <Stack.Screen
+            name="Oferta"
+            component={OfertaScreen}
+            options={comHeader('Oferta')}
+          />
+          <Stack.Screen
+            name="Resgate"
+            component={ResgateScreen}
+            options={comHeader('Seu código')}
+          />
+          <Stack.Screen
+            name="Filiacao"
+            component={FiliacaoScreen}
+            options={comHeader('Filiação')}
+          />
+          <Stack.Screen
+            name="EditarPerfil"
+            component={EditarPerfilScreen}
+            options={comHeader('Meus dados')}
+          />
+          <Stack.Screen
+            name="Historico"
+            component={HistoricoScreen}
+            options={comHeader('Histórico')}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
