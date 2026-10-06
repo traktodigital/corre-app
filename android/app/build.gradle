@@ -77,13 +77,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.correapp"
+    namespace "br.com.trakto.corre"
     defaultConfig {
-        applicationId "com.correapp"
+        applicationId "br.com.trakto.corre"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode((project.findProperty('CORRE_VERSION_CODE') ?: '1').toInteger())
+        versionName "1.0.0"
     }
     signingConfigs {
         debug {
@@ -92,15 +92,21 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (project.hasProperty('CORRE_UPLOAD_STORE_FILE')) {
+            release {
+                storeFile file(CORRE_UPLOAD_STORE_FILE)
+                storePassword CORRE_UPLOAD_STORE_PASSWORD
+                keyAlias CORRE_UPLOAD_KEY_ALIAS
+                keyPassword CORRE_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig project.hasProperty('CORRE_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
@@ -108,7 +114,6 @@ android {
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {

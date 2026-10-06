@@ -1,3 +1,4 @@
+import { env } from '../../config/env';
 import { supabase } from '../../lib/supabase';
 import type { TipoVeiculo } from '../auth/AuthProvider';
 
@@ -63,7 +64,7 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
   }
   if (!data || data.length === 0) {
     // Cadastro sem linha em `usuarios` (o garantirPerfil do login falhou):
-    // cria agora. O trigger do banco força plano free / status ativo.
+    // cria agora. O trigger corre_usuarios_ao_criar força plano free / status ativo.
     const { error: erroInsert } = await supabase
       .from('usuarios')
       .insert({ id: usuarioId, ...campos });
@@ -81,5 +82,4 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
   });
 }
 
-// TODO(fase-2): foto do perfil (upload no Storage `avatars` → usuarios.foto_url).
-// TODO(fase-2): excluir conta (Edge Function com service_role — nunca no client).
+export const urlExclusaoConta = () => `${env.SITE_URL}/excluir-conta`;

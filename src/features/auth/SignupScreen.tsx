@@ -24,16 +24,23 @@ export function validarCadastro(d: {
   if (!d.nome.trim() || !d.email.trim() || !d.cidade.trim()) {
     return 'Preenche todos os campos, por favor.';
   }
-  if (d.nome.trim().split(' ').length < 2) {
-    return 'Escreve seu nome completo, por favor.';
-  }
   if (!telefoneValido(d.telefone)) {
     return 'Telefone incompleto. Use DDD + 9 dígitos, tipo (62) 9 9999-9999.';
   }
-  if (d.senha.length < 6) {
-    return 'A senha precisa de pelo menos 6 caracteres.';
+  if (d.senha.length < SENHA_MINIMA) {
+    return `A senha precisa de pelo menos ${SENHA_MINIMA} caracteres.`;
   }
   return null;
+}
+
+export const SENHA_MINIMA = 8;
+
+/** Nome de uma palavra só existe: avisa, não bloqueia. */
+export function avisoNome(nome: string): string | null {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  return partes.length === 1
+    ? 'Se tiver sobrenome, coloca também — ajuda na carteirinha.'
+    : null;
 }
 
 export function SignupScreen({ navigation }: ScreenProps<'Signup'>) {
@@ -99,6 +106,11 @@ export function SignupScreen({ navigation }: ScreenProps<'Signup'>) {
         autoComplete="name"
         textContentType="name"
       />
+      {avisoNome(nome) ? (
+        <Text variant="caption" tone="muted">
+          {avisoNome(nome)}
+        </Text>
+      ) : null}
       <Input
         label="E-mail"
         placeholder="voce@email.com"
@@ -111,7 +123,7 @@ export function SignupScreen({ navigation }: ScreenProps<'Signup'>) {
       />
       <Input
         label="Senha"
-        placeholder="Mínimo 6 caracteres"
+        placeholder={`Mínimo ${SENHA_MINIMA} caracteres`}
         value={senha}
         onChangeText={setSenha}
         secureTextEntry

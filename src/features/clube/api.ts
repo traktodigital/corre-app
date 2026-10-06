@@ -197,6 +197,17 @@ export async function listarMeusResgates(
   return (data ?? []) as unknown as ResgateResumo[];
 }
 
+const OFFSET_BRASILIA_MS = 3 * 3600_000;
+
+export function hojeEmBrasilia(agora = Date.now()): string {
+  return new Date(agora - OFFSET_BRASILIA_MS).toISOString().slice(0, 10);
+}
+
+export function inicioDoMesEmBrasilia(agora = Date.now()): Date {
+  const [ano, mes] = hojeEmBrasilia(agora).split('-').map(Number);
+  return new Date(Date.UTC(ano, mes - 1, 1) + OFFSET_BRASILIA_MS);
+}
+
 export type ResumoEconomia = { total: number; validadosNoMes: number };
 
 /** Soma do que já foi validado no balcão + quantos resgates no mês (barra de nível). */
@@ -211,8 +222,7 @@ export async function buscarEconomia(
   if (error) {
     throw error;
   }
-  const agora = new Date();
-  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+  const inicioMes = inicioDoMesEmBrasilia();
   return (data ?? []).reduce<ResumoEconomia>(
     (acc, r) => ({
       total: acc.total + Number(r.valor_economizado ?? 0),
@@ -290,7 +300,7 @@ export type ResultadoResgate =
       precisaPremium?: boolean;
     };
 
-/** Traduz a recusa do trigger `resgates_preparar_insert` para a tela. */
+/** Traduz a recusa do trigger `corre_resgates_antes_inserir` para a tela. */
 export function motivoDoBanco(mensagem: string): ResultadoResgate {
   const m = mensagem.toLowerCase();
   if (m.includes('exclusiva de associado')) {
@@ -305,6 +315,12 @@ export function motivoDoBanco(mensagem: string): ResultadoResgate {
       ok: false,
       motivo: 'Essa é só para quem tem o plano premium.',
       precisaPremium: true,
+    };
+  }
+  if (m.includes('muitos códigos')) {
+    return {
+      ok: false,
+      motivo: 'Calma! Muitos códigos em pouco tempo. Tenta em 1 minuto.',
     };
   }
   if (m.includes('limite')) {
@@ -325,8 +341,8 @@ export function motivoDoBanco(mensagem: string): ResultadoResgate {
  * O registro (parceiro + usuário + data/hora) é a base da auditoria e da taxa de ativação.
  *
  * As checagens abaixo só dão a mensagem certa antes de tentar: quem manda é o
- * trigger `resgates_preparar_insert` (migration 20260930190000), que repete as
- * regras no banco e grava parceiro, valor, horário e o plano do usuário.
+ * trigger `corre_resgates_antes_inserir` (docs/backend/seguranca-fase1.sql),
+ * que repete as regras no banco e grava código, parceiro, valor e horário.
  */
 export async function criarResgate(
   ofertaId: string,
@@ -347,7 +363,7 @@ export async function criarResgate(
     return { ok: false, motivo: 'Essa oferta não está mais no ar.' };
   }
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = hojeEmBrasilia();
   if (oferta.validade_inicio && oferta.validade_inicio > hoje) {
     return { ok: false, motivo: 'Essa oferta ainda não começou.' };
   }
@@ -357,18 +373,24 @@ export async function criarResgate(
 
   // Resgate ainda no prazo: reabre o mesmo código. Vem antes do limite por
   // usuário — senão, com limite 1, quem volta pra oferta perde o próprio QR.
+  // O relógio do celular só serve pra essa leitura; a validade de verdade é a
+  // do servidor (trigger + validar_resgate).
   const limite = new Date(Date.now() - MINUTOS_VALIDADE * 60_000).toISOString();
-  const { data: aberto } = await supabase
-    .from('resgates')
-    .select('id')
-    .eq('oferta_id', oferta.id)
-    .eq('usuario_id', usuarioId)
-    .eq('status', 'gerado')
-    .gte('gerado_em', limite)
-    .limit(1)
-    .maybeSingle();
+  const buscarAberto = async () => {
+    const { data } = await supabase
+      .from('resgates')
+      .select('id')
+      .eq('oferta_id', oferta.id)
+      .eq('usuario_id', usuarioId)
+      .eq('status', 'gerado')
+      .gte('gerado_em', limite)
+      .limit(1)
+      .maybeSingle();
+    return data?.id as string | undefined;
+  };
+  const aberto = await buscarAberto();
   if (aberto) {
-    return { ok: true, resgateId: aberto.id };
+    return { ok: true, resgateId: aberto };
   }
 
   if (oferta.exclusivo_premium) {
@@ -387,11 +409,12 @@ export async function criarResgate(
   }
 
   if (oferta.exclusivo_associados) {
+    // Inadimplente pode estar na carência: quem decide é o banco.
     const { data: associado } = await supabase
       .from('associados')
       .select('id')
       .eq('usuario_id', usuarioId)
-      .eq('status', 'ativo')
+      .in('status', ['ativo', 'inadimplente'])
       .limit(1)
       .maybeSingle();
     if (!associado) {
@@ -409,7 +432,8 @@ export async function criarResgate(
       .select('id', { count: 'exact', head: true })
       .eq('oferta_id', oferta.id)
       .eq('usuario_id', usuarioId)
-      .in('status', ['gerado', 'validado']);
+      // Código que venceu sem uso não gasta a cota: só validado ou ainda no prazo.
+      .or(`status.eq.validado,and(status.eq.gerado,gerado_em.gte.${limite})`);
     if ((count ?? 0) >= oferta.limite_por_usuario) {
       return {
         ok: false,
@@ -418,8 +442,10 @@ export async function criarResgate(
     }
   }
 
-  // `codigo` é UNIQUE: se colidir (raro, 32^4 combinações), tenta outro.
-  // valor_economizado e plano_usuario quem calcula é o banco.
+  // O código definitivo sai do banco (CSPRNG, trigger); o daqui é só fallback
+  // enquanto a migration não está aplicada. 23505 = toque duplo (índice único
+  // por usuário+oferta em aberto) ou colisão de código: reabre o que existir.
+  // valor_economizado quem calcula é o banco.
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     const { data: criado, error } = await supabase
       .from('resgates')
@@ -439,6 +465,10 @@ export async function criarResgate(
     }
     if (error.code !== '23505') {
       throw error;
+    }
+    const existente = await buscarAberto();
+    if (existente) {
+      return { ok: true, resgateId: existente };
     }
   }
   return { ok: false, motivo: 'Não deu pra gerar o código. Tenta de novo.' };

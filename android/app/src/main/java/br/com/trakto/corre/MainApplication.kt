@@ -1,4 +1,4 @@
-package com.correapp
+package br.com.trakto.corre
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -1,14 +1,15 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Gift, IdCard, LucideIcon, Store, Trophy } from 'lucide-react-native';
+import { Gift, IdCard, LucideIcon, Store } from 'lucide-react-native';
+// import { Trophy } from 'lucide-react-native'; // volta junto com o card de nível
 import type { RootNav } from '../../app/navigation';
 import { Screen, TabKey } from '../../components/layout';
 import {
   Card,
   EmptyState,
-  IconBox,
+  // IconBox, // volta junto com o card de nível
   ListSkeleton,
-  ProgressBar,
+  // ProgressBar, // volta junto com o card de nível
   SectionTitle,
   Text,
 } from '../../components/ui';
@@ -23,8 +24,8 @@ import {
 } from '../clube/api';
 import { CardOferta, CardParceiro } from '../clube/components';
 
-/** Meta do mês para a barra de nível (mesmo texto do web). */
-const META_MES = 5;
+// FORA DA FASE 1: meta do mês para a barra de nível (mesmo texto do web).
+// const META_MES = 5;
 
 const atalhos: { label: string; icon: LucideIcon; tab: TabKey }[] = [
   { label: 'Benefícios', icon: Gift, tab: 'beneficios' },
@@ -44,8 +45,9 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
   const ofertas = useConsulta('ofertas-destaque', listarOfertasDestaque);
   const parceiros = useConsulta('parceiros', listarParceiros);
 
-  const noMes = economia.dados?.validadosNoMes ?? 0;
-  const bateuMeta = noMes >= META_MES;
+  // FORA DA FASE 1: card de nível.
+  // const noMes = economia.dados?.validadosNoMes ?? 0;
+  // const bateuMeta = noMes >= META_MES;
 
   return (
     <Screen
@@ -86,27 +88,30 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
         </View>
       </Card>
 
-      {user ? (
-        <Card padding={20}>
-          <View style={styles.row}>
-            <IconBox size={40}>
-              <Trophy size={20} color={colors.highlight} />
-            </IconBox>
-            <View style={styles.flex}>
-              <Text variant="h3">
-                {bateuMeta ? 'Meta do mês batida!' : 'Nível Bronze'}
-              </Text>
-              <Text variant="caption" tone="muted">
-                {noMes} de {META_MES} benefícios usados neste mês
-              </Text>
+      {/*
+        FORA DA FASE 1: nível/meta do mês — regra de produto ainda não definida.
+        {user ? (
+          <Card padding={20}>
+            <View style={styles.row}>
+              <IconBox size={40}>
+                <Trophy size={20} color={colors.highlight} />
+              </IconBox>
+              <View style={styles.flex}>
+                <Text variant="h3">
+                  {bateuMeta ? 'Meta do mês batida!' : 'Nível Bronze'}
+                </Text>
+                <Text variant="caption" tone="muted">
+                  {noMes} de {META_MES} benefícios usados neste mês
+                </Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.mt4}>
-            <ProgressBar value={Math.min(100, (noMes / META_MES) * 100)} />
-          </View>
-          {/* TODO(produto): regra de níveis (Bronze/Prata/Ouro) e o que cada um libera. */}
-        </Card>
-      ) : null}
+            <View style={styles.mt4}>
+              <ProgressBar value={Math.min(100, (noMes / META_MES) * 100)} />
+            </View>
+            TODO(produto): regra de níveis (Bronze/Prata/Ouro) e o que cada um libera.
+          </Card>
+        ) : null}
+      */}
 
       <View>
         <SectionTitle hint="acesso rápido">Bora começar</SectionTitle>

@@ -1,11 +1,14 @@
 import { cpfValido, mascararCpf, ocultarCpf } from '../src/lib/formato';
 import {
   gerarCodigo,
+  hojeEmBrasilia,
+  inicioDoMesEmBrasilia,
   MINUTOS_VALIDADE,
   motivoDoBanco,
   resumoDesconto,
   statusExibido,
 } from '../src/features/clube/api';
+import { cacheVencido } from '../src/features/carteira/api';
 import { validarFiliacao } from '../src/features/carteira/FiliacaoScreen';
 import { validarPerfil } from '../src/features/profile/EditarPerfilScreen';
 
@@ -85,7 +88,7 @@ describe('statusExibido', () => {
   });
 });
 
-describe('motivoDoBanco (recusas do trigger resgates_preparar_insert)', () => {
+describe('motivoDoBanco (recusas do trigger corre_resgates_antes_inserir)', () => {
   test.each([
     ['oferta exclusiva de associado', 'associado'],
     ['oferta exclusiva premium', 'premium'],
@@ -97,6 +100,13 @@ describe('motivoDoBanco (recusas do trigger resgates_preparar_insert)', () => {
     const r = motivoDoBanco(mensagem);
     expect(r.ok).toBe(false);
     expect(r.ok === false && r.motivo).toContain(trecho);
+  });
+
+  test('rate limit de geração (trigger corre_resgates_antes_inserir)', () => {
+    expect(motivoDoBanco('muitos códigos em pouco tempo')).toMatchObject({
+      ok: false,
+      motivo: expect.stringMatching(/1 minuto/),
+    });
   });
 
   test('exclusiva de associado oferece a filiação', () => {
@@ -144,5 +154,49 @@ describe('validarPerfil', () => {
         cidade: 'Goiânia',
       }),
     ).toMatch(/nome completo/);
+  });
+});
+
+describe('datas em Brasília', () => {
+  test('22h de Brasília ainda é o mesmo dia (UTC já virou)', () => {
+    expect(hojeEmBrasilia(Date.parse('2026-10-17T01:00:00Z'))).toBe(
+      '2026-10-16',
+    );
+    expect(hojeEmBrasilia(Date.parse('2026-10-17T03:00:00Z'))).toBe(
+      '2026-10-17',
+    );
+  });
+
+  test('início do mês é 00:00 de Brasília (03:00 UTC)', () => {
+    expect(
+      inicioDoMesEmBrasilia(Date.parse('2026-11-01T02:00:00Z')).toISOString(),
+    ).toBe('2026-10-01T03:00:00.000Z');
+    expect(
+      inicioDoMesEmBrasilia(Date.parse('2026-11-01T03:00:00Z')).toISOString(),
+    ).toBe('2026-11-01T03:00:00.000Z');
+  });
+});
+
+describe('cache da carteirinha', () => {
+  const agora = Date.parse('2026-10-17T12:00:00Z');
+  const dia = 86_400_000;
+
+  test('vale até 7 dias sem sincronizar', () => {
+    expect(
+      cacheVencido(
+        { sincronizadoEm: new Date(agora - 7 * dia).toISOString() },
+        agora,
+      ),
+    ).toBe(false);
+    expect(
+      cacheVencido(
+        { sincronizadoEm: new Date(agora - 7 * dia - 1).toISOString() },
+        agora,
+      ),
+    ).toBe(true);
+  });
+
+  test('data inválida conta como vencido', () => {
+    expect(cacheVencido({ sincronizadoEm: 'lixo' }, agora)).toBe(true);
   });
 });

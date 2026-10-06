@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   ChevronRight,
@@ -7,6 +7,7 @@ import {
   LogOut,
   LucideIcon,
   Pencil,
+  // Trash2, // volta junto com "Excluir minha conta"
   User,
 } from 'lucide-react-native';
 import type { RootNav } from '../../app/navigation';
@@ -27,6 +28,7 @@ import { primeiroNome, useAuth } from '../auth/AuthProvider';
 import { limparCache } from '../carteira/api';
 import { buscarEconomia } from '../clube/api';
 import { buscarPerfil } from './api';
+// import { urlExclusaoConta } from './api'; // volta junto com "Excluir minha conta"
 
 export function ProfileScreen() {
   const { colors } = useTheme();
@@ -89,10 +91,13 @@ export function ProfileScreen() {
           <Text variant="h2" numberOfLines={1}>
             {p?.nome || primeiroNome(user)}
           </Text>
-          <Text variant="caption" tone="muted">
-            Plano {p?.plano === 'premium' ? 'premium' : 'free'}
-          </Text>
-          {/* TODO(pagamentos): botão "Virar assinante" quando o gateway estiver definido. */}
+          {/*
+            FORA DA FASE 1: plano/assinatura depende do gateway de mensalidade.
+            <Text variant="caption" tone="muted">
+              Plano {p?.plano === 'premium' ? 'premium' : 'free'}
+            </Text>
+            TODO(pagamentos): botão "Virar assinante" quando o gateway estiver definido.
+          */}
         </View>
       </Card>
 
@@ -142,6 +147,15 @@ export function ProfileScreen() {
           label="Histórico de resgates"
           onPress={() => navigation.navigate('Historico')}
         />
+        {/*
+          NÃO CONECTADO: a página <SITE_URL>/excluir-conta ainda não existe no site.
+          O Google Play exige esse caminho — criar a página e reativar antes de enviar.
+          <Acao
+            icon={Trash2}
+            label="Excluir minha conta"
+            onPress={() => Linking.openURL(urlExclusaoConta())}
+          />
+        */}
       </View>
 
       <Button
@@ -151,7 +165,38 @@ export function ProfileScreen() {
         icon={<LogOut size={16} color={colors.foreground} />}
         onPress={onSair}
       />
+
+      <View style={styles.creditos}>
+        <Text variant="caption" tone="muted">
+          Desenvolvido por
+        </Text>
+        <View style={styles.creditosLinks}>
+          <Credito
+            nome="Trakto Digital"
+            url="https://www.traktodigital.com.br/"
+          />
+          <Text variant="caption" tone="muted">
+            ·
+          </Text>
+          <Credito nome="Almexa" url="https://almexa.com.br/" />
+        </View>
+      </View>
     </Screen>
+  );
+}
+
+function Credito({ nome, url }: { nome: string; url: string }) {
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={`Abrir site da ${nome}`}
+      hitSlop={8}
+      onPress={() => Linking.openURL(url)}
+    >
+      <Text variant="caption" tone="highlight" style={styles.creditoNome}>
+        {nome}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -192,4 +237,7 @@ const styles = StyleSheet.create({
   valor: { flexShrink: 1, fontWeight: '600' },
   acoes: { gap: 12 },
   acao: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  creditos: { alignItems: 'center', gap: 4, paddingTop: 8 },
+  creditosLinks: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  creditoNome: { fontWeight: '600' },
 });

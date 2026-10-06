@@ -30,6 +30,8 @@ import {
   girarToken,
   INTERVALO_TOKEN_MS,
   RETENTATIVA_TOKEN_MS,
+  cacheVencido,
+  DIAS_MAX_CACHE,
   lerCache,
   limparCache,
   salvarCache,
@@ -108,9 +110,11 @@ export function CarteiraScreen() {
     );
   }
 
-  const usandoCache = consulta.dados === undefined && !!cache && consulta.erro;
+  const cacheValido = cache && !cacheVencido(cache) ? cache : null;
+  const usandoCache =
+    consulta.dados === undefined && !!cacheValido && consulta.erro;
   const carteirinha: Carteirinha | null =
-    consulta.dados !== undefined ? consulta.dados : cache?.dados ?? null;
+    consulta.dados !== undefined ? consulta.dados : cacheValido?.dados ?? null;
 
   if (!carteirinha && (consulta.carregando || !cacheLido)) {
     return (
@@ -124,8 +128,16 @@ export function CarteiraScreen() {
     return (
       <Screen>
         <ErrorState
-          title="Não deu pra abrir sua carteirinha"
-          description="Pode ser a conexão. Assim que voltar, ela aparece aqui — e fica salva no celular pra abrir sem internet."
+          title={
+            cache
+              ? 'Não foi possível confirmar seu status'
+              : 'Não deu pra abrir sua carteirinha'
+          }
+          description={
+            cache
+              ? `Faz mais de ${DIAS_MAX_CACHE} dias sem sincronizar. Conecta na internet pra validar sua carteirinha de novo.`
+              : 'Pode ser a conexão. Assim que voltar, ela aparece aqui — e fica salva no celular pra abrir sem internet.'
+          }
           onRetry={() => consulta.recarregar()}
         />
       </Screen>

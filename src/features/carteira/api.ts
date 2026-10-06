@@ -113,6 +113,20 @@ export function selo(status: StatusAssociado): {
 
 const CHAVE_CACHE = 'corre:carteirinha';
 
+/**
+ * Card parado há dias não é prova de nada (basta desligar o Wi-Fi): passado o
+ * prazo, a carteirinha some e a tela pede internet pra confirmar o status.
+ */
+export const DIAS_MAX_CACHE = 7;
+
+export function cacheVencido(
+  c: Pick<CacheCarteirinha, 'sincronizadoEm'>,
+  agora = Date.now(),
+): boolean {
+  const idade = agora - new Date(c.sincronizadoEm).getTime();
+  return !(idade <= DIAS_MAX_CACHE * 86_400_000);
+}
+
 export type CacheCarteirinha = {
   usuarioId: string;
   dados: Carteirinha;

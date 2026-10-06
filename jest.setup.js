@@ -1,3 +1,4 @@
+/* eslint-env jest */
 // Armazenamento em memória no lugar do AsyncStorage nativo.
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store = new Map();

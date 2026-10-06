@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -27,16 +26,21 @@ export function AuthLayout({
   const insets = useSafeAreaInsets();
 
   return (
+    // Edge-to-edge (Android 15+ e edgeToEdgeEnabled): o adjustResize não
+    // encolhe mais a janela, então o padding do teclado vale nas duas plataformas.
+    // O inset do topo fica fora do scroll: rolando, nada passa sob a status bar.
     <KeyboardAvoidingView
-      style={[styles.flex, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={[
+        styles.flex,
+        { backgroundColor: colors.background, paddingTop: insets.top },
+      ]}
+      behavior="padding"
     >
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
           styles.scroll,
           {
-            paddingTop: insets.top + 24,
             paddingBottom: insets.bottom + 24,
             paddingHorizontal: layout.screenPadding + 4,
           },
@@ -62,7 +66,7 @@ export function AuthLayout({
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scroll: { flexGrow: 1 },
+  scroll: { flexGrow: 1, paddingTop: 24 },
   content: { width: '100%', alignSelf: 'center', flexGrow: 1 },
   header: { marginTop: 32, gap: 6 },
   body: { marginTop: 28, gap: 16 },

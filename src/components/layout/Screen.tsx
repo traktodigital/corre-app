@@ -1,5 +1,11 @@
 import { ReactNode, useCallback, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useTheme } from '../../theme';
 
 /** <main className="px-4 pt-5 space-y-8"> do AppShell web. */
@@ -50,27 +56,30 @@ export function Screen({
     );
   }
 
+  // Edge-to-edge: sem isso o teclado cobre os campos no Android (ver AuthLayout).
   return (
-    <ScrollView
-      style={[styles.flex, { backgroundColor: colors.background }]}
-      keyboardShouldPersistTaps="handled"
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={atualizando}
-            onRefresh={puxou}
-            tintColor={colors.highlight}
-            colors={[colors.primary]}
-          />
-        ) : undefined
-      }
-      contentContainerStyle={[
-        styles.scroll,
-        { paddingHorizontal: layout.screenPadding },
-      ]}
-    >
-      {content}
-    </ScrollView>
+    <KeyboardAvoidingView style={styles.flex} behavior="padding">
+      <ScrollView
+        style={[styles.flex, { backgroundColor: colors.background }]}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={atualizando}
+              onRefresh={puxou}
+              tintColor={colors.highlight}
+              colors={[colors.primary]}
+            />
+          ) : undefined
+        }
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingHorizontal: layout.screenPadding },
+        ]}
+      >
+        {content}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

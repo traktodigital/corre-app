@@ -64,13 +64,14 @@ async function garantirPerfil(user: User) {
       .maybeSingle();
 
     if (!perfil) {
+      const associacao = await associacaoPadrao();
       await supabase.from('usuarios').insert({
         id: user.id,
         nome: meta.nome ?? '',
         email: user.email ?? null,
         telefone: meta.telefone ?? null,
         cidade: meta.cidade ?? null,
-        uf: 'GO',
+        uf: associacao?.uf ?? null,
         tipo_veiculo: meta.tipo_veiculo ?? null,
       });
     }
@@ -82,6 +83,8 @@ async function garantirPerfil(user: User) {
       .eq('papel', 'entregador')
       .maybeSingle();
 
+    // Sem associacao_id: o vínculo com a associação só nasce na filiação
+    // aprovada (regra validada; a RLS papeis_insert_entregador_proprio exige null).
     if (!papel) {
       await supabase
         .from('papeis_usuario')
@@ -90,6 +93,37 @@ async function garantirPerfil(user: User) {
   } catch {
     // Mesmo comportamento do web: segue sem perfil e tenta de novo no próximo login.
   }
+}
+
+/**
+ * O estado (uf) é atributo da associação, não constante no código. Com uma
+ * única associação ativa (hoje a ASSEMAG), o perfil nasce com o estado dela.
+ */
+async function associacaoPadrao(): Promise<{ uf: string | null } | null> {
+  const { data } = await supabase
+    .from('associacoes')
+    .select('uf')
+    .eq('ativa', true)
+    .limit(2);
+  return data?.length === 1 ? data[0] : null;
+}
+
+/** Erro do signUp do Supabase Auth → texto da tela. */
+export function motivoCadastro(e: { code?: string; message: string }): string {
+  const m = e.message.toLowerCase();
+  if (e.code === 'user_already_exists' || m.includes('registered')) {
+    return 'Esse e-mail já tem conta. Tenta entrar.';
+  }
+  if (e.code === 'weak_password') {
+    return 'Senha fraca. Use letras e números, com pelo menos 8 caracteres.';
+  }
+  if (e.code === 'email_address_invalid') {
+    return 'Esse e-mail não parece válido. Confere aí.';
+  }
+  if (e.code === 'over_email_send_rate_limit' || m.includes('rate limit')) {
+    return 'Muitos cadastros agora. Espera uns minutos e tenta de novo.';
+  }
+  return 'Não deu pra criar a conta agora. Tenta de novo.';
 }
 
 async function carregarPapeis(userId: string): Promise<Papel[]> {
@@ -172,12 +206,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) {
-      return {
-        erro: error.message.toLowerCase().includes('registered')
-          ? 'Esse e-mail já tem conta. Tenta entrar.'
-          : 'Não deu pra criar a conta agora. Tenta de novo.',
-        precisaConfirmar: false,
-      };
+      if (__DEV__) {
+        console.warn('signUp', error.status, error.code, error.message);
+      }
+      return { erro: motivoCadastro(error), precisaConfirmar: false };
     }
     if (data.session && data.user) {
       await garantirPerfil(data.user);

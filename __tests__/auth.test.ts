@@ -2,7 +2,7 @@ import {
   mascararTelefone,
   telefoneValido,
 } from '../src/features/auth/telefone';
-import { validarCadastro } from '../src/features/auth/SignupScreen';
+import { avisoNome, validarCadastro } from '../src/features/auth/SignupScreen';
 
 describe('mascararTelefone (mesma regra do web)', () => {
   test.each([
@@ -28,7 +28,7 @@ describe('validarCadastro', () => {
     nome: 'Ana Maria',
     email: 'ana@email.com',
     telefone: '(62) 9 9999-8888',
-    senha: '123456',
+    senha: '12345678',
     cidade: 'Goiânia',
   };
 
@@ -36,10 +36,11 @@ describe('validarCadastro', () => {
     expect(validarCadastro(ok)).toBeNull();
   });
 
-  test('exige nome completo', () => {
-    expect(validarCadastro({ ...ok, nome: 'Ana' })).toBe(
-      'Escreve seu nome completo, por favor.',
-    );
+  test('nome de uma palavra avisa, não bloqueia', () => {
+    expect(validarCadastro({ ...ok, nome: 'Ana' })).toBeNull();
+    expect(avisoNome('Ana')).not.toBeNull();
+    expect(avisoNome('Ana Maria')).toBeNull();
+    expect(avisoNome('')).toBeNull();
   });
 
   test('exige telefone completo', () => {
@@ -48,9 +49,9 @@ describe('validarCadastro', () => {
     );
   });
 
-  test('exige senha com 6+ caracteres', () => {
-    expect(validarCadastro({ ...ok, senha: '12345' })).toBe(
-      'A senha precisa de pelo menos 6 caracteres.',
+  test('exige senha com 8+ caracteres', () => {
+    expect(validarCadastro({ ...ok, senha: '1234567' })).toBe(
+      'A senha precisa de pelo menos 8 caracteres.',
     );
   });
 

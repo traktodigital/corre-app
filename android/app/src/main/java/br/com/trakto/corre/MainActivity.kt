@@ -1,4 +1,4 @@
-package com.correapp
+package br.com.trakto.corre
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
