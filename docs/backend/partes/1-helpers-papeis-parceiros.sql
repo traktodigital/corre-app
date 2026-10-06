@@ -1,5 +1,5 @@
+-- (sem begin/commit: cada comando é idempotente, pode rodar de novo)
 -- Parte 1/5 de seguranca-fase1.sql — rodar NA ORDEM, uma por vez.
-begin;
 
 -- ─── 1. Helpers ──────────────────────────────────────────────────────────────
 -- SECURITY DEFINER: lê papeis_usuario sem cair na RLS (evita recursão infinita
@@ -150,5 +150,3 @@ drop trigger if exists corre_parceiros_proteger on public.parceiros;
 create trigger corre_parceiros_proteger
   before update on public.parceiros
   for each row execute function public.corre_parceiros_proteger();
-
-commit;

@@ -1,5 +1,5 @@
+-- (sem begin/commit: cada comando é idempotente, pode rodar de novo)
 -- Parte 3/5 de seguranca-fase1.sql — rodar NA ORDEM, uma por vez.
-begin;
 
 -- 3f. Resgate nunca é apagado (auditoria, funil, cobrança).
 drop policy if exists corre_trava_resgates_delete on public.resgates;
@@ -169,5 +169,3 @@ select r.parceiro_id,
 
 revoke all on public.cobranca_ativacoes from anon, authenticated;
 grant select on public.cobranca_ativacoes to authenticated;
-
-commit;

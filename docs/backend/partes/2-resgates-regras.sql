@@ -1,5 +1,5 @@
+-- (sem begin/commit: cada comando é idempotente, pode rodar de novo)
 -- Parte 2/5 de seguranca-fase1.sql — rodar NA ORDEM, uma por vez.
-begin;
 
 -- ─── 3. resgates: máquina de estados + trilha de auditoria ───────────────────
 -- Regras validadas (CORRE_Regras_App_Seguranca_Escala):
@@ -258,5 +258,3 @@ drop trigger if exists corre_resgates_congelar_plano on public.resgates;
 drop function if exists public.corre_resgates_congelar_plano();
 
 alter table public.resgates enable row level security;
-
-commit;

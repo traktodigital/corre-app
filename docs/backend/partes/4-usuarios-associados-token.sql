@@ -1,5 +1,5 @@
+-- (sem begin/commit: cada comando é idempotente, pode rodar de novo)
 -- Parte 4/5 de seguranca-fase1.sql — rodar NA ORDEM, uma por vez.
-begin;
 
 -- ─── 4. usuarios: cada um no seu; plano e status são do admin ────────────────
 
@@ -138,5 +138,3 @@ begin
     execute format('grant execute on function %s to anon', f);
   end loop;
 end $$;
-
-commit;

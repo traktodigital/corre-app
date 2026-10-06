@@ -1,5 +1,5 @@
+-- (sem begin/commit: cada comando é idempotente, pode rodar de novo)
 -- Parte 5/5 de seguranca-fase1.sql — rodar NA ORDEM, uma por vez.
-begin;
 
 -- ─── 7. Exclusão de conta (LGPD art. 16 + exigência das lojas) ─────────────
 -- Anonimiza, nunca apaga: resgates ficam (parceiro, valor, data, status) para
@@ -35,5 +35,3 @@ $$;
 revoke all on function public.corre_anonimizar_usuario(uuid)
   from public, anon, authenticated;
 grant execute on function public.corre_anonimizar_usuario(uuid) to service_role;
-
-commit;
