@@ -2,6 +2,7 @@ import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   ChevronRight,
+  ClipboardCheck,
   History,
   LogIn,
   LogOut,
@@ -33,7 +34,12 @@ import { buscarPerfil } from './api';
 export function ProfileScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const { user, sair, sairDoModoVisitante } = useAuth();
+  const {
+    user,
+    sair,
+    sairDoModoVisitante,
+    associacoesAdministradas,
+  } = useAuth();
   const usuarioId = user?.id ?? null;
 
   const perfil = useConsulta(usuarioId ? `perfil:${usuarioId}` : null, () =>
@@ -137,6 +143,13 @@ export function ProfileScreen() {
       )}
 
       <View style={styles.acoes}>
+        {associacoesAdministradas.length > 0 ? (
+          <Acao
+            icon={ClipboardCheck}
+            label="Aprovar pedidos de filiação"
+            onPress={() => navigation.navigate('FiliacoesAdmin')}
+          />
+        ) : null}
         <Acao
           icon={Pencil}
           label="Editar meus dados"

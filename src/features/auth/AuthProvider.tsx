@@ -34,6 +34,8 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   papeis: Papel[];
+  /** Associações em que a conta tem permissão de administração. */
+  associacoesAdministradas: string[];
   carregando: boolean;
   /** Visitante que escolheu "Explorar sem cadastro". */
   visitante: boolean;
@@ -126,17 +128,29 @@ export function motivoCadastro(e: { code?: string; message: string }): string {
   return 'Não deu pra criar a conta agora. Tenta de novo.';
 }
 
-async function carregarPapeis(userId: string): Promise<Papel[]> {
+async function carregarAcessos(userId: string): Promise<{
+  papeis: Papel[];
+  associacoesAdministradas: string[];
+}> {
   const { data } = await supabase
     .from('papeis_usuario')
-    .select('papel')
+    .select('papel, associacao_id')
     .eq('usuario_id', userId);
-  return (data ?? []).map(p => p.papel as Papel);
+  const linhas = data ?? [];
+  return {
+    papeis: linhas.map(p => p.papel as Papel),
+    associacoesAdministradas: linhas
+      .filter(p => p.papel === 'admin_associacao' && p.associacao_id)
+      .map(p => p.associacao_id as string),
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [papeis, setPapeis] = useState<Papel[]>([]);
+  const [associacoesAdministradas, setAssociacoesAdministradas] = useState<
+    string[]
+  >([]);
   const [carregando, setCarregando] = useState(true);
   const [visitante, setVisitante] = useState(false);
 
@@ -151,7 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setSession(data.session);
         if (data.session) {
-          setPapeis(await carregarPapeis(data.session.user.id));
+          const acessos = await carregarAcessos(data.session.user.id);
+          setPapeis(acessos.papeis);
+          setAssociacoesAdministradas(acessos.associacoesAdministradas);
         }
       })
       .finally(() => ativo && setCarregando(false));
@@ -162,10 +178,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setVisitante(false);
         // Fora do callback para não travar o cliente (recomendação do supabase-js).
         setTimeout(() => {
-          carregarPapeis(nova.user.id).then(p => ativo && setPapeis(p));
+          carregarAcessos(nova.user.id).then(acessos => {
+            if (ativo) {
+              setPapeis(acessos.papeis);
+              setAssociacoesAdministradas(acessos.associacoesAdministradas);
+            }
+          });
         }, 0);
       } else {
         setPapeis([]);
+        setAssociacoesAdministradas([]);
       }
     });
 
@@ -188,7 +210,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
     await garantirPerfil(data.user);
-    setPapeis(await carregarPapeis(data.user.id));
+    const acessos = await carregarAcessos(data.user.id);
+    setPapeis(acessos.papeis);
+    setAssociacoesAdministradas(acessos.associacoesAdministradas);
     return { erro: null };
   }, []);
 
@@ -213,7 +237,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (data.session && data.user) {
       await garantirPerfil(data.user);
-      setPapeis(await carregarPapeis(data.user.id));
+      const acessos = await carregarAcessos(data.user.id);
+      setPapeis(acessos.papeis);
+      setAssociacoesAdministradas(acessos.associacoesAdministradas);
       return { erro: null, precisaConfirmar: false };
     }
     return { erro: null, precisaConfirmar: true };
@@ -240,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user: session?.user ?? null,
       papeis,
+      associacoesAdministradas,
       carregando,
       visitante,
       explorarSemCadastro: () => setVisitante(true),
@@ -253,6 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       session,
       papeis,
+      associacoesAdministradas,
       carregando,
       visitante,
       entrar,

@@ -13,7 +13,7 @@ import { useAuth } from './AuthProvider';
 import { Aviso } from './Aviso';
 
 export function LoginScreen({ navigation }: ScreenProps<'Login'>) {
-  const { entrar, recuperarSenha, explorarSemCadastro } = useAuth();
+  const { entrar, recuperarSenha } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -53,24 +53,17 @@ export function LoginScreen({ navigation }: ScreenProps<'Login'>) {
       title="Bem-vindo de volta"
       subtitle="Entra pra ver seus descontos e sua carteirinha."
       footer={
-        <>
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => navigation.replace('Signup')}
-          >
-            <Text variant="small" tone="muted">
-              Ainda não tem conta?{' '}
-              <Text variant="small" tone="highlight" style={styles.bold}>
-                Criar conta
-              </Text>
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => navigation.replace('Signup')}
+        >
+          <Text variant="small" tone="muted">
+            Ainda não tem conta?{' '}
+            <Text variant="small" tone="highlight" style={styles.bold}>
+              Criar conta
             </Text>
-          </Pressable>
-          <Button
-            variant="ghost"
-            title="Explorar sem cadastro"
-            onPress={explorarSemCadastro}
-          />
-        </>
+          </Text>
+        </Pressable>
       }
     >
       <Input

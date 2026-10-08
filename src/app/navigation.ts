@@ -16,6 +16,7 @@ export type RootStackParamList = {
   // Área do usuário
   EditarPerfil: undefined;
   Historico: undefined;
+  FiliacoesAdmin: undefined;
   // ASSEMAG
   Filiacao: undefined;
 };

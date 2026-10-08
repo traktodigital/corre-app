@@ -5,7 +5,6 @@ import type { ScreenProps } from '../../app/navigation';
 import { Button, Card, IconBox, Text } from '../../components/ui';
 import { useTheme } from '../../theme';
 import { AuthLayout } from './AuthLayout';
-import { useAuth } from './AuthProvider';
 
 // Textos das telas /acesso e /onboarding do web.
 const destaques = [
@@ -31,19 +30,11 @@ const destaques = [
 
 export function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
   const { colors } = useTheme();
-  const { explorarSemCadastro } = useAuth();
 
   return (
     <AuthLayout
       title="Bem-vindo ao CORRE"
       subtitle="O app de quem move a cidade. Desconto no que você usa, carteirinha na mão e o seu corre organizado."
-      footer={
-        <Button
-          variant="ghost"
-          title="Explorar sem cadastro"
-          onPress={explorarSemCadastro}
-        />
-      }
     >
       <View style={styles.list}>
         {destaques.map(({ icon: Icon, titulo, texto }) => (

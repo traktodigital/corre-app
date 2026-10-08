@@ -1,13 +1,20 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Gift, IdCard, LucideIcon, Store } from 'lucide-react-native';
+import {
+  ChevronRight,
+  ClipboardCheck,
+  Gift,
+  IdCard,
+  LucideIcon,
+  Store,
+} from 'lucide-react-native';
 // import { Trophy } from 'lucide-react-native'; // volta junto com o card de nível
 import type { RootNav } from '../../app/navigation';
 import { Screen, TabKey } from '../../components/layout';
 import {
   Card,
   EmptyState,
-  // IconBox, // volta junto com o card de nível
+  IconBox,
   ListSkeleton,
   // ProgressBar, // volta junto com o card de nível
   SectionTitle,
@@ -36,7 +43,7 @@ const atalhos: { label: string; icon: LucideIcon; tab: TabKey }[] = [
 export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
   const { colors, radius } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const { user } = useAuth();
+  const { user, associacoesAdministradas } = useAuth();
   const usuarioId = user?.id ?? null;
 
   const economia = useConsulta(usuarioId ? `economia:${usuarioId}` : null, () =>
@@ -87,6 +94,26 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
           </Text>
         </View>
       </Card>
+
+      {associacoesAdministradas.length > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('FiliacoesAdmin')}
+        >
+          <Card style={styles.row}>
+            <IconBox>
+              <ClipboardCheck size={20} color={colors.highlight} />
+            </IconBox>
+            <View style={styles.flex}>
+              <Text variant="title">Pedidos de filiação</Text>
+              <Text variant="caption" tone="muted">
+                Revise os pedidos da sua associação
+              </Text>
+            </View>
+            <ChevronRight size={18} color={colors.mutedForeground} />
+          </Card>
+        </Pressable>
+      ) : null}
 
       {/*
         FORA DA FASE 1: nível/meta do mês — regra de produto ainda não definida.

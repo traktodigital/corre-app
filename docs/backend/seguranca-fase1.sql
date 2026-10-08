@@ -736,7 +736,7 @@ begin
   end if;
   delete from public.tokens_carteirinha
    where associado_id = _associado_id and expira_em < now() - interval '5 minutes';
-  v_token := encode(gen_random_bytes(24), 'hex');
+  v_token := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''); -- pgcrypto fica em extensions no Supabase
   insert into public.tokens_carteirinha (token, associado_id, expira_em)
   values (v_token, _associado_id, now() + interval '90 seconds');
   return v_token;
@@ -802,12 +802,12 @@ commit;
 -- gerar_token_carteirinha(_associado_id): conferido na auditoria 06/10
 --   [x] recusa se associados.usuario_id <> auth.uid()
 --   [x] recusa desligado (5b)
---   [x] token aleatório (gen_random_bytes 24), expira em 90s
+--   [x] token aleatório (2x gen_random_uuid), expira em 90s
 --   [x] execute revogado de anon
 -- Verificação pública /verificar/:token (função de servidor do web):
---   [ ] aceita SÓ tokens_carteirinha com expira_em > now() — nunca o
+--   [x] aceita SÓ tokens_carteirinha com expira_em > now() — nunca o
 --       associados.qr_token (fixo: print de tela valeria pra sempre)
---   [ ] devolve só nome, foto, status e associação — nunca CPF completo
+--   [x] devolve só nome, foto, status e associação — nunca CPF completo
 -- Validação do resgate pelo parceiro:
 --   [x] só usuário com papel parceiro DAQUELE parceiro_id valida (3e/3j)
 --   [x] rate limit + log de toda tentativa (3j: validar_resgate)

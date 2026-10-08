@@ -8,6 +8,7 @@ import {
   resumoDesconto,
   statusExibido,
 } from '../src/features/clube/api';
+import { motivoFiliacao } from '../src/features/admin/api';
 import { cacheVencido } from '../src/features/carteira/api';
 import { validarFiliacao } from '../src/features/carteira/FiliacaoScreen';
 import { validarPerfil } from '../src/features/profile/EditarPerfilScreen';
@@ -198,5 +199,19 @@ describe('cache da carteirinha', () => {
 
   test('data inválida conta como vencido', () => {
     expect(cacheVencido({ sincronizadoEm: 'lixo' }, agora)).toBe(true);
+  });
+});
+
+describe('motivoFiliacao (erros das RPCs de aprovação)', () => {
+  test('pedido já analisado pede recarga da fila', () => {
+    expect(motivoFiliacao('filiação: pedido já analisado').recarregar).toBe(true);
+  });
+  test('motivo curto não culpa a permissão', () => {
+    const r = motivoFiliacao('filiação: informe o motivo da recusa');
+    expect(r.recarregar).toBe(false);
+    expect(r.motivo).toMatch(/pelo menos 5/);
+  });
+  test('sem permissão', () => {
+    expect(motivoFiliacao('filiação: sem permissão para esta associação').motivo).toMatch(/permissão/);
   });
 });

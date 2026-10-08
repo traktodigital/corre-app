@@ -115,7 +115,10 @@ begin
   end if;
   delete from public.tokens_carteirinha
    where associado_id = _associado_id and expira_em < now() - interval '5 minutes';
-  v_token := encode(gen_random_bytes(24), 'hex');
+  -- gen_random_bytes (pgcrypto) mora no schema extensions no Supabase e some com
+  -- search_path = public. gen_random_uuid é nativo (PG13+), mesmo CSPRNG:
+  -- 2 UUIDs v4 = 244 bits aleatórios.
+  v_token := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
   insert into public.tokens_carteirinha (token, associado_id, expira_em)
   values (v_token, _associado_id, now() + interval '90 seconds');
   return v_token;

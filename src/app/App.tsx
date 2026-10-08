@@ -22,6 +22,7 @@ import { SignupScreen } from '../features/auth/SignupScreen';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
 import { FiliacaoScreen } from '../features/carteira/FiliacaoScreen';
 import { CarteiraScreen } from '../features/carteira/screen';
+import { FiliacoesAdminScreen } from '../features/admin/FiliacoesAdminScreen';
 import { BeneficiosScreen } from '../features/clube/BeneficiosScreen';
 import { OfertaScreen } from '../features/clube/OfertaScreen';
 import { ParceiroScreen } from '../features/clube/ParceiroScreen';
@@ -118,6 +119,11 @@ function RootNavigator() {
             name="Historico"
             component={HistoricoScreen}
             options={comHeader('Histórico')}
+          />
+          <Stack.Screen
+            name="FiliacoesAdmin"
+            component={FiliacoesAdminScreen}
+            options={comHeader('Pedidos de filiação')}
           />
         </>
       ) : (
