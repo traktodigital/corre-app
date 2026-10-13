@@ -82,4 +82,12 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
   });
 }
 
-export const urlExclusaoConta = () => `${env.SITE_URL}/excluir-conta`;
+/** Anonimiza os dados e bloqueia o login (docs/backend/partes/7). */
+export async function excluirMinhaConta(): Promise<void> {
+  const { error } = await supabase.rpc('excluir_minha_conta');
+  if (error) {
+    throw error;
+  }
+}
+
+export const urlPrivacidade = () => `${env.SITE_URL}/privacidade`;

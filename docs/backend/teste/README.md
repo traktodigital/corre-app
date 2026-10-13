@@ -13,6 +13,7 @@ psql -h localhost -p 54329 -U postgres -d corre -f 1-stub-supabase.sql
 psql -h localhost -p 54329 -U postgres -d corre -f ../seguranca-fase1.sql
 psql -h localhost -p 54329 -U authenticator -d corre -f 2-ataques.sql
 psql -h localhost -p 54329 -U postgres -d corre -f 3-backend.sql
+psql -h localhost -p 54329 -U postgres -d corre -f 4-excluir-minha-conta.sql
 ```
 
 Toda linha deve começar com `OK`. Qualquer `FALHA` é brecha.

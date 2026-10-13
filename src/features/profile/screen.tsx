@@ -1,4 +1,4 @@
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   ChevronRight,
@@ -8,7 +8,8 @@ import {
   LogOut,
   LucideIcon,
   Pencil,
-  // Trash2, // volta junto com "Excluir minha conta"
+  ShieldCheck,
+  Trash2,
   User,
 } from 'lucide-react-native';
 import type { RootNav } from '../../app/navigation';
@@ -28,18 +29,13 @@ import { useTheme } from '../../theme';
 import { primeiroNome, useAuth } from '../auth/AuthProvider';
 import { limparCache } from '../carteira/api';
 import { buscarEconomia } from '../clube/api';
-import { buscarPerfil } from './api';
-// import { urlExclusaoConta } from './api'; // volta junto com "Excluir minha conta"
+import { buscarPerfil, excluirMinhaConta, urlPrivacidade } from './api';
 
 export function ProfileScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const {
-    user,
-    sair,
-    sairDoModoVisitante,
-    associacoesAdministradas,
-  } = useAuth();
+  const { user, sair, sairDoModoVisitante, associacoesAdministradas } =
+    useAuth();
   const usuarioId = user?.id ?? null;
 
   const perfil = useConsulta(usuarioId ? `perfil:${usuarioId}` : null, () =>
@@ -71,6 +67,34 @@ export function ProfileScreen() {
   async function onSair() {
     await limparCache();
     await sair();
+  }
+
+  async function excluir() {
+    try {
+      await excluirMinhaConta();
+    } catch {
+      Alert.alert(
+        'Não deu pra excluir',
+        'Confira sua conexão e tente de novo. Se continuar, fale com o suporte.',
+      );
+      return;
+    }
+    await onSair();
+  }
+
+  function onExcluir() {
+    Alert.alert(
+      'Excluir sua conta?',
+      'Seus dados pessoais são apagados, a carteirinha é cancelada e você não consegue mais entrar com esta conta. Não dá pra desfazer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => void excluir(),
+        },
+      ],
+    );
   }
 
   const p = perfil.dados;
@@ -160,15 +184,12 @@ export function ProfileScreen() {
           label="Histórico de resgates"
           onPress={() => navigation.navigate('Historico')}
         />
-        {/*
-          NÃO CONECTADO: a página <SITE_URL>/excluir-conta ainda não existe no site.
-          O Google Play exige esse caminho — criar a página e reativar antes de enviar.
-          <Acao
-            icon={Trash2}
-            label="Excluir minha conta"
-            onPress={() => Linking.openURL(urlExclusaoConta())}
-          />
-        */}
+        <Acao
+          icon={ShieldCheck}
+          label="Política de privacidade"
+          onPress={() => Linking.openURL(urlPrivacidade())}
+        />
+        <Acao icon={Trash2} label="Excluir minha conta" onPress={onExcluir} />
       </View>
 
       <Button

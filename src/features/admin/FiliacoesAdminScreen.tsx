@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { ClipboardCheck, UserRoundCheck } from 'lucide-react-native';
 import type { ScreenProps } from '../../app/navigation';
 import { Screen } from '../../components/layout';
@@ -46,7 +46,10 @@ export function FiliacoesAdminScreen({}: ScreenProps<'FiliacoesAdmin'>) {
       : null,
     () => listarAssociacoesAdministradas(associacoesAdministradas),
   );
-  const disponiveis = associacoes.dados ?? [];
+  const disponiveis = useMemo(
+    () => associacoes.dados ?? [],
+    [associacoes.dados],
+  );
   const selecionada = useMemo(() => {
     if (disponiveis.some(a => a.id === associacaoId)) {
       return associacaoId;

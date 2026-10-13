@@ -106,7 +106,10 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig project.hasProperty('CORRE_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
+            // Sem fallback pra chave de debug: a Play Store rejeita o AAB.
+            if (project.hasProperty('CORRE_UPLOAD_STORE_FILE')) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
@@ -120,5 +123,17 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+
+// Release sem keystore de upload falha cedo, com instrução, em vez de gerar AAB
+// que a Play Store recusa.
+gradle.taskGraph.whenReady { graph ->
+    def geraRelease = graph.allTasks.any { it.project == project && it.name ==~ /(bundle|assemble|package)Release/ }
+    if (geraRelease && !project.hasProperty('CORRE_UPLOAD_STORE_FILE')) {
+        throw new GradleException(
+            "Keystore de upload não configurado. Defina CORRE_UPLOAD_STORE_FILE, " +
+            "CORRE_UPLOAD_STORE_PASSWORD, CORRE_UPLOAD_KEY_ALIAS e CORRE_UPLOAD_KEY_PASSWORD " +
+            "em ~/.gradle/gradle.properties.")
     }
 }
