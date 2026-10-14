@@ -154,7 +154,7 @@ export function IntroSplash({ onFinish }: { onFinish: () => void }) {
   return (
     <Animated.View
       pointerEvents="none"
-      accessibilityLabel="CORRE — Clube do Entregador"
+      accessibilityLabel="Sou Corre — Clube do Entregador"
       style={[StyleSheet.absoluteFill, styles.root, containerStyle]}
     >
       <View style={styles.center}>
@@ -166,7 +166,7 @@ export function IntroSplash({ onFinish }: { onFinish: () => void }) {
 
       <Animated.View style={[styles.brand, nameStyle]}>
         <Text variant="hero" style={styles.name}>
-          CORRE
+          SOU CORRE
         </Text>
         <Text variant="micro" tone="muted" style={styles.tagline}>
           CLUBE DO ENTREGADOR

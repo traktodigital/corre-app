@@ -358,7 +358,7 @@ function CartaoCarteirinha({
         )}
         <View style={styles.flex}>
           <Text variant="h3" numberOfLines={2}>
-            {usuario?.nome || 'Associado CORRE'}
+            {usuario?.nome || 'Associado Sou Corre'}
           </Text>
           <Text variant="caption" tone="muted">
             CPF {ocultarCpf(usuario?.cpf)}

@@ -62,7 +62,7 @@ export function CardParceiro({
           </Text>
           <Text variant="caption" tone="muted" numberOfLines={1}>
             {[parceiro.categoria?.nome, local].filter(Boolean).join(' · ') ||
-              'Parceiro CORRE'}
+              'Parceiro Sou Corre'}
           </Text>
         </View>
         {parceiro.nota_media ? (

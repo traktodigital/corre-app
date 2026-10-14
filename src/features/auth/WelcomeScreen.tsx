@@ -33,7 +33,7 @@ export function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
 
   return (
     <AuthLayout
-      title="Bem-vindo ao CORRE"
+      title="Bem-vindo ao Sou Corre"
       subtitle="O app de quem move a cidade. Desconto no que você usa, carteirinha na mão e o seu corre organizado."
     >
       <View style={styles.list}>

@@ -104,7 +104,7 @@ export function ProfileScreen() {
     ['Cidade', [p?.cidade, p?.uf].filter(Boolean).join(' / ')],
     ['Como roda', p?.tipo_veiculo ? rotuloVeiculo[p.tipo_veiculo] : undefined],
     ['Placa', p?.placa],
-    ['No CORRE desde', formatarData(p?.criado_em)],
+    ['No Sou Corre desde', formatarData(p?.criado_em)],
   ].filter(([, v]) => v) as [string, string][];
 
   return (

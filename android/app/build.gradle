@@ -79,7 +79,7 @@ android {
 
     namespace "br.com.trakto.corre"
     defaultConfig {
-        applicationId "br.com.trakto.corre"
+        applicationId "br.com.soucorre.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode((project.findProperty('CORRE_VERSION_CODE') ?: '1').toInteger())

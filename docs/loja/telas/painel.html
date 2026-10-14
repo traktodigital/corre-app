@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=block" rel="stylesheet">
+<style>
+html,body{margin:0;width:5400px;height:1920px;overflow:hidden}
+body{position:relative;font-family:Inter,sans-serif;background:linear-gradient(180deg,#f2fbf5 0%,#e3f6ea 100%)}
+svg.onda{position:absolute;left:0;top:0}
+.blob{position:absolute;border-radius:50%}
+.p{position:absolute;top:0;width:1080px;height:1920px}
+.t{position:absolute;left:0;right:0;top:120px;text-align:center;padding:0 70px}
+.t small{display:block;font-size:34px;font-weight:700;letter-spacing:.18em;color:#109150;text-transform:uppercase;margin-bottom:18px}
+.t h1{margin:0;font-size:92px;font-weight:900;letter-spacing:-.035em;line-height:1.02;color:#0b1f13}
+.t h1 em{font-style:normal;color:#109150}
+.tel{position:absolute;width:700px;height:1244px;border:20px solid #0d0f0e;border-radius:92px;overflow:hidden;background:#000;
+ box-shadow:0 50px 120px rgba(6,40,22,.45),inset 0 0 0 2px #333}
+.tel img{width:100%;height:100%;object-fit:cover;display:block}
+.tel:after{content:"";position:absolute;top:22px;left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:#0d0f0e}
+.selo{position:absolute;display:flex;align-items:center;gap:18px;background:#fff;border-radius:28px;padding:22px 30px;
+ box-shadow:0 20px 50px rgba(6,40,22,.18);font-size:34px;font-weight:700;color:#0b1f13}
+.selo b{display:grid;place-items:center;width:64px;height:64px;border-radius:18px;background:#109150;color:#fff;font-size:34px}
+.logo{position:absolute;left:340px;top:250px;width:400px;height:400px;border-radius:96px;overflow:hidden;box-shadow:0 30px 80px rgba(6,40,22,.35)}
+.logo img{width:100%;height:100%}
+</style></head><body>
+
+<svg class="onda" width="5400" height="1920" viewBox="0 0 5400 1920">
+ <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1db268"/><stop offset=".55" stop-color="#109150"/><stop offset="1" stop-color="#0b6b3c"/></linearGradient></defs>
+ <path fill="url(#g)" d="M0 1180 C 500 980, 800 1500, 1300 1320 S 2100 900, 2600 1150 S 3400 1550, 3900 1250 S 4800 950, 5400 1200 L 5400 1920 L 0 1920 Z"/>
+ <path fill="#3ddc84" opacity=".35" d="M0 1330 C 600 1180, 900 1620, 1500 1460 S 2300 1080, 2900 1330 S 3700 1680, 4300 1400 S 5000 1150, 5400 1350 L 5400 1920 L 0 1920 Z"/>
+</svg>
+<div class="blob" style="left:820px;top:620px;width:420px;height:420px;background:#3ddc84;opacity:.25"></div>
+<div class="blob" style="left:2050px;top:520px;width:300px;height:300px;background:#109150;opacity:.15"></div>
+<div class="blob" style="left:3150px;top:700px;width:520px;height:520px;background:#3ddc84;opacity:.22"></div>
+<div class="blob" style="left:4950px;top:560px;width:360px;height:360px;background:#109150;opacity:.14"></div>
+
+<!-- 1 -->
+<div class="p" style="left:0">
+ <div class="logo"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png"></div>
+ <div class="t" style="top:720px"><small>Clube do entregador</small><h1>Sou <em>Corre</em></h1></div>
+ <div class="t" style="top:960px"><h1 style="font-size:58px;font-weight:700;color:#24402e">O app de quem<br>vive da entrega</h1></div>
+ <div class="selo" style="left:150px;top:1390px"><b>✓</b>Carteirinha digital</div>
+ <div class="selo" style="left:330px;top:1560px"><b>%</b>Descontos em parceiros</div>
+ <div class="selo" style="left:200px;top:1730px"><b>★</b>Filiação pelo app</div>
+</div>
+<!-- 2 -->
+<div class="p" style="left:1080px">
+ <div class="t"><small>Início</small><h1>Tudo do seu corre<br><em>num toque</em></h1></div>
+ <div class="tel" style="left:190px;top:560px;transform:rotate(-6deg)"><img src="brutas/2-inicio.png"></div>
+</div>
+<!-- 3 -->
+<div class="p" style="left:2160px">
+ <div class="t"><small>Benefícios</small><h1>Desconto em<br><em>parceiros da cidade</em></h1></div>
+ <div class="tel" style="left:190px;top:560px;transform:rotate(5deg)"><img src="brutas/3-beneficios.png"></div>
+ <div class="selo" style="left:610px;top:1500px;transform:rotate(5deg)"><b>%</b>Gere o código e<br>mostre no balcão</div>
+</div>
+<!-- 4 -->
+<div class="p" style="left:3240px">
+ <div class="t"><small>Associação</small><h1>Filiação<br><em>pelo celular</em></h1></div>
+ <div class="tel" style="left:190px;top:560px;transform:rotate(-5deg)"><img src="brutas/4-filiacao.png"></div>
+ <div class="selo" style="left:80px;top:1460px;transform:rotate(-5deg)"><b>✓</b>Acompanhe seu pedido</div>
+</div>
+<!-- 5 -->
+<div class="p" style="left:4320px">
+ <div class="t"><small>Perfil</small><h1>Seus dados,<br><em>seu controle</em></h1></div>
+ <div class="tel" style="left:190px;top:560px;transform:rotate(6deg)"><img src="brutas/5-perfil.png"></div>
+ <div class="selo" style="left:560px;top:1520px;transform:rotate(6deg)"><b>🔒</b>Sem anúncios</div>
+</div>
+</body></html>

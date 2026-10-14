@@ -177,7 +177,7 @@ export function ResgateScreen({ route, navigation }: ScreenProps<'Resgate'>) {
       <Card style={styles.passos}>
         <Text variant="title">Como usar</Text>
         <Text variant="small" tone="muted">
-          1. Avise no caixa que você é do CORRE antes de pagar.
+          1. Avise no caixa que você é do Sou Corre antes de pagar.
         </Text>
         <Text variant="small" tone="muted">
           2. Mostre o QR ou fale o código {dados.codigo}.

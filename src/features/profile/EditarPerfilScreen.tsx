@@ -184,7 +184,7 @@ export function EditarPerfilScreen({
 
         <Text variant="caption" tone="muted">
           E-mail e CPF não mudam por aqui. Precisa trocar? Fala com o suporte
-          CORRE.
+          Sou Corre.
         </Text>
 
         {erro ? <InlineError text={erro} /> : null}

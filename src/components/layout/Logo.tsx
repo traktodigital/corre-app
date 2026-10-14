@@ -18,7 +18,7 @@ export function Logo({
     <View
       style={styles.row}
       accessible
-      accessibilityLabel="CORRE — Clube do Entregador"
+      accessibilityLabel="Sou Corre — Clube do Entregador"
     >
       <Image
         source={simbolo}
@@ -28,7 +28,7 @@ export function Logo({
       {showName ? (
         <View>
           <Text variant="h3" style={styles.name}>
-            CORRE
+            SOU CORRE
           </Text>
           <Text variant="micro" tone="muted" style={styles.tagline}>
             CLUBE DO ENTREGADOR
