@@ -90,7 +90,7 @@ export async function listarCategorias(): Promise<Categoria[]> {
 }
 
 export async function listarParceiros(): Promise<ParceiroResumo[]> {
-  // TODO(fase-1.1): paginação com "carregar mais" (o web usa lotes de 20).
+  // Teto de 100; o "carregar mais" em lotes de 20 fica na BeneficiosScreen.
   const { data, error } = await supabase
     .from('parceiros')
     .select(

@@ -11,6 +11,7 @@ import { Search, Store } from 'lucide-react-native';
 import type { RootNav } from '../../app/navigation';
 import { Screen } from '../../components/layout';
 import {
+  Button,
   EmptyState,
   ErrorState,
   ListSkeleton,
@@ -27,6 +28,8 @@ import {
 import { CardOferta, CardParceiro } from './components';
 
 const TODAS = 'todas';
+/** Lote do "carregar mais" — mesmo tamanho do web. */
+const LOTE = 20;
 
 /** Aba Benefícios: catálogo de parceiros ativos + ofertas em destaque. */
 export function BeneficiosScreen() {
@@ -34,6 +37,9 @@ export function BeneficiosScreen() {
   const { colors, radius } = useTheme();
   const [categoria, setCategoria] = useState(TODAS);
   const [busca, setBusca] = useState('');
+  // ponytail: paginação só na renderização; a busca já traz até 100 parceiros
+  // e a busca/filtro rodam no client. Passou de 100 → paginar no servidor (.range).
+  const [visiveis, setVisiveis] = useState(LOTE);
 
   const categorias = useConsulta('categorias', listarCategorias);
   const parceiros = useConsulta('parceiros', listarParceiros);
@@ -105,7 +111,10 @@ export function BeneficiosScreen() {
             placeholderTextColor={colors.mutedForeground}
             selectionColor={colors.highlight}
             value={busca}
-            onChangeText={setBusca}
+            onChangeText={t => {
+              setBusca(t);
+              setVisiveis(LOTE);
+            }}
             style={[styles.buscaInput, { color: colors.foreground }]}
           />
         </View>
@@ -123,7 +132,10 @@ export function BeneficiosScreen() {
                   key={c.id}
                   accessibilityRole="button"
                   accessibilityState={{ selected: ativa }}
-                  onPress={() => setCategoria(c.id)}
+                  onPress={() => {
+                    setCategoria(c.id);
+                    setVisiveis(LOTE);
+                  }}
                   style={[
                     styles.pill,
                     { borderRadius: radius.full },
@@ -167,13 +179,20 @@ export function BeneficiosScreen() {
           />
         ) : (
           <View style={styles.list}>
-            {filtrados.map(p => (
+            {filtrados.slice(0, visiveis).map(p => (
               <CardParceiro
                 key={p.id}
                 parceiro={p}
                 onPress={() => navigation.navigate('Parceiro', { id: p.id })}
               />
             ))}
+            {filtrados.length > visiveis ? (
+              <Button
+                title={`Carregar mais (${filtrados.length - visiveis})`}
+                variant="outline"
+                onPress={() => setVisiveis(v => v + LOTE)}
+              />
+            ) : null}
           </View>
         )}
       </View>
