@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=block" rel="stylesheet">
+<!-- Prints da App Store (1320x2868). Abra com #1, #2... para escolher o painel. -->
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1320px;height:2868px;overflow:hidden;background:#050b08}
+body{font-family:Inter,sans-serif;color:#fff}
+.p{display:none;position:absolute;inset:0;overflow:hidden;background:
+ radial-gradient(1100px 760px at 86% 4%,rgba(61,220,132,.42),transparent 68%),
+ radial-gradient(900px 900px at 4% 62%,rgba(16,145,80,.5),transparent 70%),
+ linear-gradient(170deg,#0b1f14 0%,#050b08 62%)}
+.p.on{display:block}
+.brilho{position:absolute;left:-260px;top:520px;width:1900px;height:150px;transform:rotate(-24deg);
+ background:linear-gradient(90deg,transparent,rgba(61,220,132,.2),transparent);filter:blur(30px)}
+.topo{position:absolute;left:90px;right:90px;top:128px}
+.tag{display:inline-flex;align-items:center;gap:16px;padding:14px 28px 14px 14px;border-radius:99px;
+ background:rgba(61,220,132,.13);border:2px solid rgba(61,220,132,.42);font-size:34px;font-weight:800;letter-spacing:.02em;color:#7df0ae}
+.tag img{width:58px;height:58px;border-radius:15px}
+h1{margin:40px 0 0;font-size:128px;line-height:1;font-weight:900;letter-spacing:-.045em}
+h1 em{font-style:normal;background:linear-gradient(95deg,#3ddc84,#a6f7c6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.halo{position:absolute;left:50%;top:880px;width:1180px;height:1500px;margin-left:-590px;border-radius:50%;
+ background:radial-gradient(closest-side,rgba(61,220,132,.5),transparent);filter:blur(30px)}
+.tel{position:absolute;left:50%;top:720px;width:1030px;height:2236px;margin-left:-515px;padding:20px;border-radius:158px;
+ background:linear-gradient(145deg,#59645d,#191d1b 35%,#0c0f0d 70%,#3f4842);
+ box-shadow:0 60px 150px rgba(0,0,0,.7),0 0 0 3px rgba(255,255,255,.08)}
+.tel img{display:block;width:100%;height:100%;border-radius:138px}
+.borrao{position:absolute;border-radius:12px;background:rgba(23,25,24,.55);backdrop-filter:blur(16px)}
+.selo{position:absolute;display:flex;align-items:center;gap:22px;padding:30px 42px 30px 30px;border-radius:40px;
+ background:linear-gradient(120deg,#35d97f,#109150);box-shadow:0 34px 80px rgba(16,145,80,.6);
+ font-size:46px;line-height:1.1;font-weight:800;letter-spacing:-.02em;color:#04140b}
+.selo svg{width:84px;height:84px;flex:none;padding:20px;border-radius:26px;background:#04140b;color:#3ddc84;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+</style></head><body>
+<section class="p" id="p1"><div class="brilho"></div>
+ <div class="topo"><div class="tag"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png">Clube do entregador</div>
+ <h1>Desconto de verdade <em>no seu corre</em></h1></div>
+ <div class="halo"></div><div class="tel"><img src="brutas/1-boas-vindas.png"></div>
+</section>
+<section class="p" id="p2"><div class="brilho"></div>
+ <div class="topo"><div class="tag"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png">Benefícios</div>
+ <h1>Ofertas para <em>quem roda</em></h1></div>
+ <div class="halo"></div><div class="tel"><img src="brutas/2-beneficios.png"></div>
+ <div class="selo" style="right:44px;top:2460px"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg>Gere o código e<br>mostre no balcão</div>
+</section>
+<section class="p" id="p3"><div class="brilho"></div>
+ <div class="topo"><div class="tag"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png">ASSEMAG</div>
+ <h1>Sua filiação <em>pelo celular</em></h1></div>
+ <div class="halo"></div><div class="tel"><img src="brutas/3-filiacao.png"></div>
+</section>
+<section class="p" id="p4"><div class="brilho"></div>
+ <div class="topo"><div class="tag"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png">Carteira</div>
+ <h1>Sua carteirinha <em>no bolso</em></h1></div>
+ <div class="halo"></div><div class="tel"><img src="brutas/4-carteira.png"><div class="borrao" style="left:322px;top:642px;width:250px;height:42px"></div></div>
+ <div class="selo" style="left:44px;top:2340px"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg>QR novo a cada<br>60 segundos</div>
+</section>
+<section class="p" id="p5"><div class="brilho"></div>
+ <div class="topo"><div class="tag"><img src="../../../ios/CorreApp/Images.xcassets/AppIcon.appiconset/icon-1024.png">Exclusivo associado</div>
+ <h1>Desconto real <em>nos parceiros</em></h1></div>
+ <div class="halo"></div><div class="tel"><img src="brutas/5-oferta.png"></div>
+ <div class="selo" style="left:44px;top:2490px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Código válido<br>por 15 minutos</div>
+</section>
+<script>document.getElementById('p'+(location.hash.slice(1)||1)).classList.add('on')</script>
+</body></html>

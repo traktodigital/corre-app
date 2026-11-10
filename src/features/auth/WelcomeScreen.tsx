@@ -17,8 +17,7 @@ const destaques = [
   {
     icon: IdCard,
     titulo: 'Sua associação no bolso',
-    texto:
-      'Carteirinha digital com QR, mensalidade em dia e a papelada organizada.',
+    texto: 'Carteirinha digital com QR e a papelada organizada.',
   },
   // FORA DA FASE 1: ganhos e formação são Fase 2.
   // {
