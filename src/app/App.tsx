@@ -28,6 +28,11 @@ import { OfertaScreen } from '../features/clube/OfertaScreen';
 import { ParceiroScreen } from '../features/clube/ParceiroScreen';
 import { ResgateScreen } from '../features/clube/ResgateScreen';
 import { HomeScreen } from '../features/home/screen';
+import { AbastecimentoScreen } from '../features/jornada/AbastecimentoScreen';
+import { EncerrarJornadaScreen } from '../features/jornada/EncerrarJornadaScreen';
+import { EntregasScreen } from '../features/jornada/EntregasScreen';
+import { IniciarJornadaScreen } from '../features/jornada/IniciarJornadaScreen';
+import { ResumoJornadaScreen } from '../features/jornada/ResumoJornadaScreen';
 import { EditarPerfilScreen } from '../features/profile/EditarPerfilScreen';
 import { HistoricoScreen } from '../features/profile/HistoricoScreen';
 import { ProfileScreen } from '../features/profile/screen';
@@ -60,10 +65,12 @@ const comHeader = (title: string): NativeStackNavigationOptions => ({
 });
 
 function MainTabs() {
-  const [tab, setTab] = useState<TabKey>('inicio');
+  const [tab, setTab] = useState<TabKey>('entregas');
   return (
     <AppShell activeTab={tab} onChangeTab={setTab}>
-      {tab === 'inicio' ? (
+      {tab === 'entregas' ? (
+        <EntregasScreen />
+      ) : tab === 'inicio' ? (
         <HomeScreen onIrPara={setTab} />
       ) : tab === 'beneficios' ? (
         <BeneficiosScreen />
@@ -124,6 +131,26 @@ function RootNavigator() {
             name="FiliacoesAdmin"
             component={FiliacoesAdminScreen}
             options={comHeader('Pedidos de filiação')}
+          />
+          <Stack.Screen
+            name="IniciarJornada"
+            component={IniciarJornadaScreen}
+            options={comHeader('Iniciar jornada')}
+          />
+          <Stack.Screen
+            name="Abastecimento"
+            component={AbastecimentoScreen}
+            options={comHeader('Abastecimento')}
+          />
+          <Stack.Screen
+            name="EncerrarJornada"
+            component={EncerrarJornadaScreen}
+            options={comHeader('Encerrar jornada')}
+          />
+          <Stack.Screen
+            name="ResumoJornada"
+            component={ResumoJornadaScreen}
+            options={comHeader('Resumo do dia')}
           />
         </>
       ) : (

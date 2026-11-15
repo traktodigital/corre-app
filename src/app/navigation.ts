@@ -19,6 +19,11 @@ export type RootStackParamList = {
   FiliacoesAdmin: undefined;
   // ASSEMAG
   Filiacao: undefined;
+  // Jornada do dia (ADR-0005)
+  IniciarJornada: undefined;
+  Abastecimento: { jornadaId: string };
+  EncerrarJornada: { jornadaId: string };
+  ResumoJornada: { jornadaId: string };
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> =
