@@ -1,1 +1,1 @@
-export { FiliacoesAdminScreen as MembershipRequestsAdminScreen } from './FiliacoesAdminScreen';
+export { MembershipRequestsAdminScreen } from './ui/screens/MembershipRequestsAdminScreen';
