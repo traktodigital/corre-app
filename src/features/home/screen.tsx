@@ -8,42 +8,38 @@ import {
   LucideIcon,
   Store,
 } from 'lucide-react-native';
-// import { Trophy } from 'lucide-react-native'; // volta junto com o card de nível
+
 import type { RootNav } from '../../app/navigation';
-import { Screen, TabKey } from '../../components/layout';
+import { Screen, TabKey } from '../../shared/layout';
 import {
   Card,
   EmptyState,
   IconBox,
   ListSkeleton,
-  // ProgressBar, // volta junto com o card de nível
   SectionTitle,
   Text,
-} from '../../components/ui';
-import { formatarReal } from '../../lib/formato';
-import { useConsulta } from '../../lib/useConsulta';
-import { alpha, palette, useTheme } from '../../theme';
-import { primeiroNome, useAuth } from '../auth/AuthProvider';
+} from '../../shared/ui';
+import { formatarReal } from '../../shared/format';
+import { useConsulta } from '../../shared/hooks/useQuery';
+import { alpha, palette, useTheme } from '../../shared/theme';
+import { firstName, useSession } from '../auth';
 import {
   buscarEconomia,
   listarOfertasDestaque,
   listarParceiros,
-} from '../clube/api';
-import { CardOferta, CardParceiro } from '../clube/components';
-
-// FORA DA FASE 1: meta do mês para a barra de nível (mesmo texto do web).
-// const META_MES = 5;
+} from '../club/api';
+import { CardOferta, CardParceiro } from '../club/components';
 
 const atalhos: { label: string; icon: LucideIcon; tab: TabKey }[] = [
-  { label: 'Benefícios', icon: Gift, tab: 'beneficios' },
-  { label: 'Carteirinha', icon: IdCard, tab: 'carteira' },
-  // TODO(fase-2): Formação (cursos) e Casa própria — dependem de parceria externa.
+  { label: 'Benefícios', icon: Gift, tab: 'benefits' },
+  { label: 'Carteirinha', icon: IdCard, tab: 'wallet' },
 ];
 
 export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
   const { colors, radius } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const { user, associacoesAdministradas } = useAuth();
+  const { user, managedAssociationIds: associacoesAdministradas } =
+    useSession();
   const usuarioId = user?.id ?? null;
 
   const economia = useConsulta(usuarioId ? `economia:${usuarioId}` : null, () =>
@@ -51,10 +47,6 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
   );
   const ofertas = useConsulta('ofertas-destaque', listarOfertasDestaque);
   const parceiros = useConsulta('parceiros', listarParceiros);
-
-  // FORA DA FASE 1: card de nível.
-  // const noMes = economia.dados?.validadosNoMes ?? 0;
-  // const bateuMeta = noMes >= META_MES;
 
   return (
     <Screen
@@ -67,7 +59,7 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
       }
     >
       <Card padding={20} glowing>
-        <Text variant="h1">Olá, {primeiroNome(user)}!</Text>
+        <Text variant="h1">Olá, {firstName(user)}!</Text>
         <Text variant="small" tone="muted">
           Bom corre hoje. Bora economizar?
         </Text>
@@ -98,7 +90,7 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
       {associacoesAdministradas.length > 0 ? (
         <Pressable
           accessibilityRole="button"
-          onPress={() => navigation.navigate('FiliacoesAdmin')}
+          onPress={() => navigation.navigate('MembershipRequestsAdmin')}
         >
           <Card style={styles.row}>
             <IconBox>
@@ -114,31 +106,6 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
           </Card>
         </Pressable>
       ) : null}
-
-      {/*
-        FORA DA FASE 1: nível/meta do mês — regra de produto ainda não definida.
-        {user ? (
-          <Card padding={20}>
-            <View style={styles.row}>
-              <IconBox size={40}>
-                <Trophy size={20} color={colors.highlight} />
-              </IconBox>
-              <View style={styles.flex}>
-                <Text variant="h3">
-                  {bateuMeta ? 'Meta do mês batida!' : 'Nível Bronze'}
-                </Text>
-                <Text variant="caption" tone="muted">
-                  {noMes} de {META_MES} benefícios usados neste mês
-                </Text>
-              </View>
-            </View>
-            <View style={styles.mt4}>
-              <ProgressBar value={Math.min(100, (noMes / META_MES) * 100)} />
-            </View>
-            TODO(produto): regra de níveis (Bronze/Prata/Ouro) e o que cada um libera.
-          </Card>
-        ) : null}
-      */}
 
       <View>
         <SectionTitle hint="acesso rápido">Bora começar</SectionTitle>
@@ -182,7 +149,7 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
               <CardOferta
                 key={o.id}
                 oferta={o}
-                onPress={() => navigation.navigate('Oferta', { id: o.id })}
+                onPress={() => navigation.navigate('Offer', { id: o.id })}
               />
             ))}
           </View>
@@ -199,15 +166,12 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
               <CardParceiro
                 key={p.id}
                 parceiro={p}
-                onPress={() => navigation.navigate('Parceiro', { id: p.id })}
+                onPress={() => navigation.navigate('Partner', { id: p.id })}
               />
             ))}
           </View>
         )}
-        {/* TODO(fase-2): "Perto de você" ordenado por distância (geolocalização). */}
       </View>
-
-      {/* TODO(fase-2): card "Próximo evento" (tabela `eventos` da associação). */}
     </Screen>
   );
 }

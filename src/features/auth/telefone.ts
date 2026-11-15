@@ -1,4 +1,3 @@
-/** Máscara do web (src/lib/auth.tsx): (DD) D DDDD-DDDD, até 11 dígitos. */
 export function mascararTelefone(valor: string): string {
   const d = valor.replace(/\D/g, '').slice(0, 11);
   if (d.length === 0) {

@@ -13,7 +13,7 @@ import {
   User,
 } from 'lucide-react-native';
 import type { RootNav } from '../../app/navigation';
-import { Screen } from '../../components/layout';
+import { Screen } from '../../shared/layout';
 import {
   Button,
   Card,
@@ -22,27 +22,31 @@ import {
   IconBox,
   ListSkeleton,
   Text,
-} from '../../components/ui';
-import { formatarData, formatarReal, rotuloVeiculo } from '../../lib/formato';
-import { useConsulta } from '../../lib/useConsulta';
-import { useTheme } from '../../theme';
-import { primeiroNome, useAuth } from '../auth/AuthProvider';
-import { limparCache } from '../carteira/api';
-import { buscarEconomia } from '../clube/api';
+} from '../../shared/ui';
+import { formatarData, formatarReal, rotuloVeiculo } from '../../shared/format';
+import { useConsulta } from '../../shared/hooks/useQuery';
+import { useTheme } from '../../shared/theme';
+import { firstName, useSession } from '../auth';
+import { clearCardCache } from '../wallet';
+import { fetchSavings } from '../club';
 import { buscarPerfil, excluirMinhaConta, urlPrivacidade } from './api';
 
 export function ProfileScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const { user, sair, sairDoModoVisitante, associacoesAdministradas } =
-    useAuth();
+  const {
+    user,
+    signOut: sair,
+    leaveGuestMode: sairDoModoVisitante,
+    managedAssociationIds: associacoesAdministradas,
+  } = useSession();
   const usuarioId = user?.id ?? null;
 
   const perfil = useConsulta(usuarioId ? `perfil:${usuarioId}` : null, () =>
     buscarPerfil(usuarioId!),
   );
   const economia = useConsulta(usuarioId ? `economia:${usuarioId}` : null, () =>
-    buscarEconomia(usuarioId!),
+    fetchSavings(usuarioId!),
   );
 
   if (!user) {
@@ -65,7 +69,7 @@ export function ProfileScreen() {
   }
 
   async function onSair() {
-    await limparCache();
+    await clearCardCache();
     await sair();
   }
 
@@ -119,15 +123,8 @@ export function ProfileScreen() {
         </IconBox>
         <View style={styles.flex}>
           <Text variant="h2" numberOfLines={1}>
-            {p?.nome || primeiroNome(user)}
+            {p?.nome || firstName(user)}
           </Text>
-          {/*
-            FORA DA FASE 1: plano/assinatura depende do gateway de mensalidade.
-            <Text variant="caption" tone="muted">
-              Plano {p?.plano === 'premium' ? 'premium' : 'free'}
-            </Text>
-            TODO(pagamentos): botão "Virar assinante" quando o gateway estiver definido.
-          */}
         </View>
       </Card>
 
@@ -171,18 +168,18 @@ export function ProfileScreen() {
           <Acao
             icon={ClipboardCheck}
             label="Aprovar pedidos de filiação"
-            onPress={() => navigation.navigate('FiliacoesAdmin')}
+            onPress={() => navigation.navigate('MembershipRequestsAdmin')}
           />
         ) : null}
         <Acao
           icon={Pencil}
           label="Editar meus dados"
-          onPress={() => navigation.navigate('EditarPerfil')}
+          onPress={() => navigation.navigate('EditProfile')}
         />
         <Acao
           icon={History}
           label="Histórico de resgates"
-          onPress={() => navigation.navigate('Historico')}
+          onPress={() => navigation.navigate('RedemptionHistory')}
         />
         <Acao
           icon={ShieldCheck}

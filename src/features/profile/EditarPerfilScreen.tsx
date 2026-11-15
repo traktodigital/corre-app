@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../components/layout';
+import { Screen } from '../../shared/layout';
 import {
   Button,
   Chip,
@@ -10,13 +10,12 @@ import {
   Input,
   ListSkeleton,
   Text,
-} from '../../components/ui';
-import { useConsulta } from '../../lib/useConsulta';
-import { TipoVeiculo, useAuth } from '../auth/AuthProvider';
-import { mascararTelefone, telefoneValido } from '../auth/telefone';
+} from '../../shared/ui';
+import { useConsulta } from '../../shared/hooks/useQuery';
+import { isValidPhone, maskPhone, type VehicleType, useSession } from '../auth';
 import { buscarPerfil, salvarPerfil } from './api';
 
-const veiculos: { value: TipoVeiculo; label: string }[] = [
+const veiculos: { value: VehicleType; label: string }[] = [
   { value: 'moto', label: 'Moto' },
   { value: 'bike', label: 'Bike' },
   { value: 'carro', label: 'Carro' },
@@ -31,7 +30,7 @@ export function validarPerfil(d: {
   if (d.nome.trim().split(/\s+/).length < 2) {
     return 'Escreve seu nome completo, por favor.';
   }
-  if (!telefoneValido(d.telefone)) {
+  if (!isValidPhone(d.telefone)) {
     return 'Telefone incompleto. Use DDD + 9 dígitos.';
   }
   if (!d.cidade.trim()) {
@@ -40,10 +39,8 @@ export function validarPerfil(d: {
   return null;
 }
 
-export function EditarPerfilScreen({
-  navigation,
-}: ScreenProps<'EditarPerfil'>) {
-  const { user } = useAuth();
+export function EditarPerfilScreen({ navigation }: ScreenProps<'EditProfile'>) {
+  const { user } = useSession();
   const usuarioId = user?.id ?? null;
   const perfil = useConsulta(usuarioId ? `perfil:${usuarioId}` : null, () =>
     buscarPerfil(usuarioId!),
@@ -54,12 +51,11 @@ export function EditarPerfilScreen({
   const [telefone, setTelefone] = useState('');
   const [cidade, setCidade] = useState('');
   const [uf, setUf] = useState('GO');
-  const [veiculo, setVeiculo] = useState<TipoVeiculo>('moto');
+  const [veiculo, setVeiculo] = useState<VehicleType>('moto');
   const [placa, setPlaca] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Preenche uma vez só — o refetch ao focar não pode apagar o que foi digitado.
   useEffect(() => {
     const p = perfil.dados;
     if (!p || preenchido) {
@@ -131,7 +127,7 @@ export function EditarPerfilScreen({
           label="Telefone"
           placeholder="(62) 9 9999-9999"
           value={telefone}
-          onChangeText={v => setTelefone(mascararTelefone(v))}
+          onChangeText={v => setTelefone(maskPhone(v))}
           keyboardType="phone-pad"
           autoComplete="tel"
         />

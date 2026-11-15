@@ -1,6 +1,6 @@
-import { env } from '../../config/env';
-import { supabase } from '../../lib/supabase';
-import type { TipoVeiculo } from '../auth/AuthProvider';
+import { env } from '../../core/config/env';
+import { supabase } from '../../core/supabase/client';
+import type { VehicleType } from '../auth';
 
 export type Perfil = {
   id: string;
@@ -10,13 +10,12 @@ export type Perfil = {
   telefone: string | null;
   cidade: string | null;
   uf: string | null;
-  tipo_veiculo: TipoVeiculo | null;
+  tipo_veiculo: VehicleType | null;
   placa: string | null;
   plano: 'free' | 'premium';
   criado_em: string;
 };
 
-/** Linha do próprio usuário em `usuarios` (RLS `usuarios_select_proprio`). */
 export async function buscarPerfil(usuarioId: string): Promise<Perfil | null> {
   const { data, error } = await supabase
     .from('usuarios')
@@ -36,14 +35,10 @@ export type EdicaoPerfil = {
   telefone: string;
   cidade: string;
   uf: string;
-  tipo_veiculo: TipoVeiculo;
+  tipo_veiculo: VehicleType;
   placa: string;
 };
 
-/**
- * Atualiza só os campos que o entregador pode mexer — plano e status ficam
- * com o admin. Também espelha no metadata do auth para o "Olá, fulano".
- */
 export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
   const campos = {
     nome: d.nome.trim(),
@@ -53,7 +48,7 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
     tipo_veiculo: d.tipo_veiculo,
     placa: d.placa.trim().toUpperCase() || null,
   };
-  // `.select` para saber se alguma linha mudou: update em 0 linhas não dá erro.
+
   const { data, error } = await supabase
     .from('usuarios')
     .update(campos)
@@ -63,8 +58,6 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
     throw error;
   }
   if (!data || data.length === 0) {
-    // Cadastro sem linha em `usuarios` (o garantirPerfil do login falhou):
-    // cria agora. O trigger corre_usuarios_ao_criar força plano free / status ativo.
     const { error: erroInsert } = await supabase
       .from('usuarios')
       .insert({ id: usuarioId, ...campos });
@@ -82,7 +75,6 @@ export async function salvarPerfil(usuarioId: string, d: EdicaoPerfil) {
   });
 }
 
-/** Anonimiza os dados e bloqueia o login (docs/backend/partes/7). */
 export async function excluirMinhaConta(): Promise<void> {
   const { error } = await supabase.rpc('excluir_minha_conta');
   if (error) {

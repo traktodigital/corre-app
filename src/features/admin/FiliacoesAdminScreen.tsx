@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { ClipboardCheck, UserRoundCheck } from 'lucide-react-native';
 import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../components/layout';
+import { Screen } from '../../shared/layout';
 import {
   Button,
   Card,
@@ -13,15 +13,15 @@ import {
   Input,
   ListSkeleton,
   Text,
-} from '../../components/ui';
+} from '../../shared/ui';
 import {
   formatarDataHora,
   mascararCpf,
   rotuloVeiculo,
-} from '../../lib/formato';
-import { useConsulta } from '../../lib/useConsulta';
-import { useTheme } from '../../theme';
-import { useAuth } from '../auth/AuthProvider';
+} from '../../shared/format';
+import { useConsulta } from '../../shared/hooks/useQuery';
+import { useTheme } from '../../shared/theme';
+import { useSession } from '../auth';
 import {
   aprovarPedidoFiliacao,
   listarAssociacoesAdministradas,
@@ -32,8 +32,9 @@ import {
   rejeitarPedidoFiliacao,
 } from './api';
 
-export function FiliacoesAdminScreen({}: ScreenProps<'FiliacoesAdmin'>) {
-  const { user, associacoesAdministradas } = useAuth();
+export function FiliacoesAdminScreen({}: ScreenProps<'MembershipRequestsAdmin'>) {
+  const { user, managedAssociationIds: associacoesAdministradas } =
+    useSession();
   const [associacaoId, setAssociacaoId] = useState('');
   const [acaoId, setAcaoId] = useState<string | null>(null);
   const [rejeicaoId, setRejeicaoId] = useState<string | null>(null);

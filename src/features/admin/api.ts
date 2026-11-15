@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../core/supabase/client';
 
 export type AssociacaoAdministrada = {
   id: string;
@@ -54,10 +54,6 @@ export async function listarPedidosPendentes(
   return data ?? [];
 }
 
-/**
- * A RPC confere a permissão no servidor e conclui, numa única transação,
- * perfil + associado + papel da associação + status da solicitação.
- */
 export async function aprovarPedidoFiliacao(solicitacaoId: string) {
   const { error } = await supabase.rpc('aprovar_solicitacao_filiacao', {
     _solicitacao_id: solicitacaoId,
@@ -80,9 +76,8 @@ export async function rejeitarPedidoFiliacao(
   }
 }
 
-export const MIN_MOTIVO_RECUSA = 5; // espelha o check de rejeitar_solicitacao_filiacao
+export const MIN_MOTIVO_RECUSA = 5;
 
-/** Traduz o erro das RPCs de filiação; `recarregar` indica que a fila mudou. */
 export function motivoFiliacao(mensagem: string): {
   motivo: string;
   recarregar: boolean;

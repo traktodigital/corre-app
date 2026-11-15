@@ -1,5 +1,5 @@
 /* eslint-env jest */
-// Armazenamento em memória no lugar do AsyncStorage nativo.
+
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store = new Map();
   const api = {
@@ -15,7 +15,6 @@ jest.mock('@react-native-async-storage/async-storage', () => {
   return { __esModule: true, default: api, ...api };
 });
 
-// Câmera e seletor de arquivos (jornada): nativos, sem implementação no Jest.
 jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(async () => ({ didCancel: true })),
   launchImageLibrary: jest.fn(async () => ({ didCancel: true })),

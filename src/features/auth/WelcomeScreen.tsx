@@ -1,12 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { Gift, IdCard } from 'lucide-react-native';
-// import { Route } from 'lucide-react-native'; // volta junto com o 3º destaque
+
 import type { ScreenProps } from '../../app/navigation';
-import { Button, Card, IconBox, Text } from '../../components/ui';
-import { useTheme } from '../../theme';
+import { Button, Card, IconBox, Text } from '../../shared/ui';
+import { useTheme } from '../../shared/theme';
 import { AuthLayout } from './AuthLayout';
 
-// Textos das telas /acesso e /onboarding do web.
 const destaques = [
   {
     icon: Gift,
@@ -20,12 +19,6 @@ const destaques = [
     texto:
       'Carteirinha digital com QR, mensalidade em dia e a papelada organizada.',
   },
-  // FORA DA FASE 1: ganhos e formação são Fase 2.
-  // {
-  //   icon: Route,
-  //   titulo: 'Trabalho e benefício no mesmo app',
-  //   texto: 'Acompanhe seus ganhos, resgates e formação num lugar só.',
-  // },
 ];
 
 export function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {

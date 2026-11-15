@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../core/supabase/client';
 
 export type Papel =
   | 'entregador'
@@ -34,10 +34,10 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   papeis: Papel[];
-  /** Associações em que a conta tem permissão de administração. */
+
   associacoesAdministradas: string[];
   carregando: boolean;
-  /** Visitante que escolheu "Explorar sem cadastro". */
+
   visitante: boolean;
   explorarSemCadastro: () => void;
   sairDoModoVisitante: () => void;
@@ -52,10 +52,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/**
- * Igual ao `garantirPerfil` do web: cria a linha em `usuarios` e o papel
- * `entregador` se ainda não existirem. Falhas são ignoradas (não bloqueiam o login).
- */
 async function garantirPerfil(user: User) {
   const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>;
   try {
@@ -85,22 +81,14 @@ async function garantirPerfil(user: User) {
       .eq('papel', 'entregador')
       .maybeSingle();
 
-    // Sem associacao_id: o vínculo com a associação só nasce na filiação
-    // aprovada (regra validada; a RLS papeis_insert_entregador_proprio exige null).
     if (!papel) {
       await supabase
         .from('papeis_usuario')
         .insert({ usuario_id: user.id, papel: 'entregador' });
     }
-  } catch {
-    // Mesmo comportamento do web: segue sem perfil e tenta de novo no próximo login.
-  }
+  } catch {}
 }
 
-/**
- * O estado (uf) é atributo da associação, não constante no código. Com uma
- * única associação ativa (hoje a ASSEMAG), o perfil nasce com o estado dela.
- */
 async function associacaoPadrao(): Promise<{ uf: string | null } | null> {
   const { data } = await supabase
     .from('associacoes')
@@ -110,7 +98,6 @@ async function associacaoPadrao(): Promise<{ uf: string | null } | null> {
   return data?.length === 1 ? data[0] : null;
 }
 
-/** Erro do signUp do Supabase Auth → texto da tela. */
 export function motivoCadastro(e: { code?: string; message: string }): string {
   const m = e.message.toLowerCase();
   if (e.code === 'user_already_exists' || m.includes('registered')) {
@@ -176,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(nova);
       if (nova) {
         setVisitante(false);
-        // Fora do callback para não travar o cliente (recomendação do supabase-js).
+
         setTimeout(() => {
           carregarAcessos(nova.user.id).then(acessos => {
             if (ativo) {
@@ -249,7 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!email.trim()) {
       return { erro: 'Escreve seu e-mail primeiro que a gente manda o link.' };
     }
-    // Sem redirectTo: o link abre a página /nova-senha do site (Site URL do projeto).
+
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
     return {
       erro: error ? 'Não rolou enviar o link agora. Tenta em instantes.' : null,
@@ -301,7 +288,6 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 
-/** Primeiro nome do metadata, como no web (fallback "entregador"). */
 export function primeiroNome(user: User | null): string {
   const nome = ((user?.user_metadata?.nome as string | undefined) ?? '').trim();
   return nome.split(' ')[0] || 'entregador';

@@ -1,0 +1,29 @@
+import { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from '../theme';
+import { AppHeader } from './AppHeader';
+import { TabBar, TabKey } from './TabBar';
+
+export function AppShell({
+  activeTab,
+  onChangeTab,
+  children,
+}: {
+  activeTab: TabKey;
+  onChangeTab: (tab: TabKey) => void;
+  children: ReactNode;
+}) {
+  const { colors } = useTheme();
+
+  return (
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <AppHeader />
+      <View style={styles.root}>{children}</View>
+      <TabBar active={activeTab} onChange={onChangeTab} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});

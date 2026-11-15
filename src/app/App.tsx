@@ -1,7 +1,3 @@
-/**
- * @format
- */
-
 import { useCallback, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,29 +10,34 @@ import {
   createNativeStackNavigator,
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
-import { AppShell, IntroSplash, TabKey } from '../components/layout';
-import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
-import { ConfirmEmailScreen } from '../features/auth/ConfirmEmailScreen';
-import { LoginScreen } from '../features/auth/LoginScreen';
-import { SignupScreen } from '../features/auth/SignupScreen';
-import { WelcomeScreen } from '../features/auth/WelcomeScreen';
-import { FiliacaoScreen } from '../features/carteira/FiliacaoScreen';
-import { CarteiraScreen } from '../features/carteira/screen';
-import { FiliacoesAdminScreen } from '../features/admin/FiliacoesAdminScreen';
-import { BeneficiosScreen } from '../features/clube/BeneficiosScreen';
-import { OfertaScreen } from '../features/clube/OfertaScreen';
-import { ParceiroScreen } from '../features/clube/ParceiroScreen';
-import { ResgateScreen } from '../features/clube/ResgateScreen';
-import { HomeScreen } from '../features/home/screen';
-import { AbastecimentoScreen } from '../features/jornada/AbastecimentoScreen';
-import { EncerrarJornadaScreen } from '../features/jornada/EncerrarJornadaScreen';
-import { EntregasScreen } from '../features/jornada/EntregasScreen';
-import { IniciarJornadaScreen } from '../features/jornada/IniciarJornadaScreen';
-import { ResumoJornadaScreen } from '../features/jornada/ResumoJornadaScreen';
-import { EditarPerfilScreen } from '../features/profile/EditarPerfilScreen';
-import { HistoricoScreen } from '../features/profile/HistoricoScreen';
-import { ProfileScreen } from '../features/profile/screen';
-import { darkColors, ThemeProvider } from '../theme';
+import { AppShell, IntroSplash, TabKey } from '../shared/layout';
+import { MembershipRequestsAdminScreen } from '../features/admin';
+import {
+  AuthProvider,
+  ConfirmEmailScreen,
+  LoginScreen,
+  SignupScreen,
+  useSession,
+  WelcomeScreen,
+} from '../features/auth';
+import {
+  BenefitsScreen,
+  OfferScreen,
+  PartnerScreen,
+  RedemptionHistoryScreen,
+  RedemptionScreen,
+} from '../features/club';
+import { HomeScreen } from '../features/home';
+import { EditProfileScreen, ProfileScreen } from '../features/profile';
+import {
+  EndTripScreen,
+  RefuelScreen,
+  StartTripScreen,
+  TripScreen,
+  TripSummaryScreen,
+} from '../features/trip';
+import { MembershipRequestScreen, WalletScreen } from '../features/wallet';
+import { darkColors, ThemeProvider } from '../shared/theme';
 import type { RootStackParamList } from './navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,7 +55,6 @@ const navTheme: NavTheme = {
   },
 };
 
-/** Telas empilhadas por cima das abas: header nativo com "voltar". */
 const comHeader = (title: string): NativeStackNavigationOptions => ({
   headerShown: true,
   title,
@@ -65,17 +65,17 @@ const comHeader = (title: string): NativeStackNavigationOptions => ({
 });
 
 function MainTabs() {
-  const [tab, setTab] = useState<TabKey>('entregas');
+  const [tab, setTab] = useState<TabKey>('trip');
   return (
     <AppShell activeTab={tab} onChangeTab={setTab}>
-      {tab === 'entregas' ? (
-        <EntregasScreen />
-      ) : tab === 'inicio' ? (
+      {tab === 'trip' ? (
+        <TripScreen />
+      ) : tab === 'home' ? (
         <HomeScreen onIrPara={setTab} />
-      ) : tab === 'beneficios' ? (
-        <BeneficiosScreen />
-      ) : tab === 'carteira' ? (
-        <CarteiraScreen />
+      ) : tab === 'benefits' ? (
+        <BenefitsScreen />
+      ) : tab === 'wallet' ? (
+        <WalletScreen />
       ) : (
         <ProfileScreen />
       )}
@@ -84,8 +84,8 @@ function MainTabs() {
 }
 
 function RootNavigator() {
-  const { session, visitante } = useAuth();
-  const dentro = !!session || visitante;
+  const { session, isGuest } = useSession();
+  const dentro = !!session || isGuest;
 
   return (
     <Stack.Navigator
@@ -98,58 +98,58 @@ function RootNavigator() {
         <>
           <Stack.Screen name="Main" component={MainTabs} />
           <Stack.Screen
-            name="Parceiro"
-            component={ParceiroScreen}
+            name="Partner"
+            component={PartnerScreen}
             options={comHeader('Parceiro')}
           />
           <Stack.Screen
-            name="Oferta"
-            component={OfertaScreen}
+            name="Offer"
+            component={OfferScreen}
             options={comHeader('Oferta')}
           />
           <Stack.Screen
-            name="Resgate"
-            component={ResgateScreen}
+            name="Redemption"
+            component={RedemptionScreen}
             options={comHeader('Seu código')}
           />
           <Stack.Screen
-            name="Filiacao"
-            component={FiliacaoScreen}
+            name="MembershipRequest"
+            component={MembershipRequestScreen}
             options={comHeader('Filiação')}
           />
           <Stack.Screen
-            name="EditarPerfil"
-            component={EditarPerfilScreen}
+            name="EditProfile"
+            component={EditProfileScreen}
             options={comHeader('Meus dados')}
           />
           <Stack.Screen
-            name="Historico"
-            component={HistoricoScreen}
+            name="RedemptionHistory"
+            component={RedemptionHistoryScreen}
             options={comHeader('Histórico')}
           />
           <Stack.Screen
-            name="FiliacoesAdmin"
-            component={FiliacoesAdminScreen}
+            name="MembershipRequestsAdmin"
+            component={MembershipRequestsAdminScreen}
             options={comHeader('Pedidos de filiação')}
           />
           <Stack.Screen
-            name="IniciarJornada"
-            component={IniciarJornadaScreen}
+            name="StartTrip"
+            component={StartTripScreen}
             options={comHeader('Iniciar jornada')}
           />
           <Stack.Screen
-            name="Abastecimento"
-            component={AbastecimentoScreen}
+            name="Refuel"
+            component={RefuelScreen}
             options={comHeader('Abastecimento')}
           />
           <Stack.Screen
-            name="EncerrarJornada"
-            component={EncerrarJornadaScreen}
+            name="EndTrip"
+            component={EndTripScreen}
             options={comHeader('Encerrar jornada')}
           />
           <Stack.Screen
-            name="ResumoJornada"
-            component={ResumoJornadaScreen}
+            name="TripSummary"
+            component={TripSummaryScreen}
             options={comHeader('Resumo do dia')}
           />
         </>
@@ -166,14 +166,13 @@ function RootNavigator() {
 }
 
 function Root() {
-  const { carregando } = useAuth();
+  const { loading } = useSession();
   const [introAcabou, setIntroAcabou] = useState(false);
   const hideIntro = useCallback(() => setIntroAcabou(true), []);
 
   return (
     <>
-      {/* Só monta a navegação depois de saber se já existe sessão salva. */}
-      {carregando ? null : (
+      {loading ? null : (
         <NavigationContainer theme={navTheme}>
           <RootNavigator />
         </NavigationContainer>

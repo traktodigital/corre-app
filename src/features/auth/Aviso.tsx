@@ -1,9 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 import { CheckCircle2 } from 'lucide-react-native';
-import { Text } from '../../components/ui';
-import { alpha, palette, useTheme } from '../../theme';
+import { Text } from '../../shared/ui';
+import { alpha, palette, useTheme } from '../../shared/theme';
 
-/** Aviso de sucesso inline (substitui o toast verde do web). */
 export function Aviso({ text }: { text: string }) {
   const { colors, radius } = useTheme();
   return (

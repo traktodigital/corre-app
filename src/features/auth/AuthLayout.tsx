@@ -6,11 +6,10 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Logo } from '../../components/layout/Logo';
-import { Text } from '../../components/ui';
-import { useTheme } from '../../theme';
+import { Logo } from '../../shared/layout/Logo';
+import { Text } from '../../shared/ui';
+import { useTheme } from '../../shared/theme';
 
-/** Moldura das telas de entrar/criar conta: logo, título, subtítulo e conteúdo. */
 export function AuthLayout({
   title,
   subtitle,
@@ -26,9 +25,6 @@ export function AuthLayout({
   const insets = useSafeAreaInsets();
 
   return (
-    // Edge-to-edge (Android 15+ e edgeToEdgeEnabled): o adjustResize não
-    // encolhe mais a janela, então o padding do teclado vale nas duas plataformas.
-    // O inset do topo fica fora do scroll: rolando, nada passa sob a status bar.
     <KeyboardAvoidingView
       style={[
         styles.flex,

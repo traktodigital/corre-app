@@ -7,7 +7,7 @@ import {
   Input,
   Text,
   TextInputRef,
-} from '../../components/ui';
+} from '../../shared/ui';
 import { AuthLayout } from './AuthLayout';
 import { useAuth } from './AuthProvider';
 import { Aviso } from './Aviso';
@@ -31,7 +31,7 @@ export function LoginScreen({ navigation }: ScreenProps<'Login'>) {
     setEnviando(true);
     const { erro: e } = await entrar(email, senha);
     setEnviando(false);
-    // Sucesso: o AuthProvider troca a sessão e o App abre a Home.
+
     if (e) {
       setErro(e);
     }

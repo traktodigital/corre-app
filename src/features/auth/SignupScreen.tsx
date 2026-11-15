@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { ScreenProps } from '../../app/navigation';
-import { Button, Chip, InlineError, Input, Text } from '../../components/ui';
+import { Button, Chip, InlineError, Input, Text } from '../../shared/ui';
 import { AuthLayout } from './AuthLayout';
 import { TipoVeiculo, useAuth } from './AuthProvider';
 import { mascararTelefone, telefoneValido } from './telefone';
@@ -13,7 +13,6 @@ const veiculos: { value: TipoVeiculo; label: string }[] = [
   { value: 'a_pe', label: 'A pé' },
 ];
 
-/** Regras de /criar-conta do web, na mesma ordem. */
 export function validarCadastro(d: {
   nome: string;
   email: string;
@@ -35,7 +34,6 @@ export function validarCadastro(d: {
 
 export const SENHA_MINIMA = 8;
 
-/** Nome de uma palavra só existe: avisa, não bloqueia. */
 export function avisoNome(nome: string): string | null {
   const partes = nome.trim().split(/\s+/).filter(Boolean);
   return partes.length === 1
@@ -76,7 +74,6 @@ export function SignupScreen({ navigation }: ScreenProps<'Signup'>) {
     } else if (r.precisaConfirmar) {
       navigation.replace('ConfirmEmail', { email: email.trim() });
     }
-    // Sem confirmação: a sessão já existe e o App abre a Home.
   }
 
   return (
