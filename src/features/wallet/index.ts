@@ -1,3 +1,3 @@
-export { limparCache as clearCardCache } from './api';
-export { FiliacaoScreen as MembershipRequestScreen } from './FiliacaoScreen';
-export { CarteiraScreen as WalletScreen } from './screen';
+export { clearCardCache } from './data/walletRepository';
+export { MembershipRequestScreen } from './ui/screens/MembershipRequestScreen';
+export { WalletScreen } from './ui/screens/WalletScreen';
