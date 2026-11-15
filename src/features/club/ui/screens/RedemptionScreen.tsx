@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { CheckCircle2, Clock, Info, WifiOff } from 'lucide-react-native';
-import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../shared/layout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Screen } from '../../../../shared/layout';
 import {
   Button,
   Card,
@@ -11,48 +11,53 @@ import {
   InlineError,
   ListSkeleton,
   Text,
-} from '../../shared/ui';
-import { formatarReal } from '../../shared/format';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { palette, useTheme } from '../../shared/theme';
-import { buscarResgate, MINUTOS_VALIDADE } from './api';
+} from '../../../../shared/ui';
+import { formatCurrency } from '../../../../shared/format';
+import { useQuery } from '../../../../shared/hooks/useQuery';
+import { palette, useTheme } from '../../../../shared/theme';
+import { fetchRedemption } from '../../data/clubRepository';
+import { REDEMPTION_VALIDITY_MINUTES, redemptionDeadline } from '../../domain';
 
-function useContagem(geradoEm: string | undefined) {
-  const [agora, setAgora] = useState(() => Date.now());
+const POLL_INTERVAL_MS = 5000;
+
+function useSecondsLeft(generatedAt: string | undefined) {
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (!geradoEm) {
+    if (!generatedAt) {
       return;
     }
-    const id = setInterval(() => setAgora(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [geradoEm]);
-  if (!geradoEm) {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [generatedAt]);
+  if (!generatedAt) {
     return null;
   }
-  const fim = new Date(geradoEm).getTime() + MINUTOS_VALIDADE * 60_000;
-  return Math.max(0, Math.round((fim - agora) / 1000));
+  return Math.max(
+    0,
+    Math.round((redemptionDeadline(generatedAt) - now) / 1000),
+  );
 }
 
-export function ResgateScreen({
+export function RedemptionScreen({
   route,
   navigation,
 }: ScreenProps<'Redemption'>) {
   const { id } = route.params;
   const { colors, radius } = useTheme();
 
-  const [finalizado, setFinalizado] = useState(false);
-  const resgate = useConsulta(`resgate:${id}`, () => buscarResgate(id), {
-    intervaloMs: finalizado ? undefined : 5000,
+  const [finished, setFinished] = useState(false);
+  const redemption = useQuery(`redemption:${id}`, () => fetchRedemption(id), {
+    intervalMs: finished ? undefined : POLL_INTERVAL_MS,
   });
-  const dados = resgate.dados;
-  const restante = useContagem(dados?.gerado_em);
+  const r = redemption.data;
+  const secondsLeft = useSecondsLeft(r?.generatedAt);
   useEffect(() => {
-    if (dados && (dados.status !== 'gerado' || restante === 0)) {
-      setFinalizado(true);
+    if (r && (r.status !== 'generated' || secondsLeft === 0)) {
+      setFinished(true);
     }
-  }, [dados, restante]);
+  }, [r, secondsLeft]);
 
-  if (resgate.carregando) {
+  if (redemption.loading) {
     return (
       <Screen>
         <ListSkeleton rows={2} />
@@ -60,10 +65,10 @@ export function ResgateScreen({
     );
   }
 
-  if (!dados) {
+  if (!r) {
     return (
-      <Screen onRefresh={() => resgate.recarregar(true)}>
-        {resgate.erro ? (
+      <Screen onRefresh={() => redemption.reload(true)}>
+        {redemption.error ? (
           <InlineError text="A internet oscilou. Puxe pra baixo pra tentar de novo." />
         ) : (
           <EmptyState
@@ -79,20 +84,20 @@ export function ResgateScreen({
     );
   }
 
-  if (dados.status === 'validado') {
+  if (r.status === 'validated') {
     return (
       <Screen>
-        <View style={styles.sucesso}>
+        <View style={styles.success}>
           <CheckCircle2 size={72} color={colors.highlight} />
           <Text variant="h1" style={styles.center}>
             Desconto liberado!
           </Text>
           <Text variant="small" tone="muted" style={styles.center}>
-            {dados.parceiro?.nome_fantasia} validou o seu código {dados.codigo}.
+            {r.partner?.name} validou o seu código {r.code}.
           </Text>
-          {dados.valor_economizado ? (
+          {r.savedAmount ? (
             <Text variant="hero" tone="highlight">
-              + {formatarReal(Number(dados.valor_economizado))}
+              + {formatCurrency(r.savedAmount)}
             </Text>
           ) : null}
           <Button
@@ -105,20 +110,20 @@ export function ResgateScreen({
     );
   }
 
-  const encerrado = dados.status === 'expirado' || dados.status === 'cancelado';
-  const faltam = restante ?? 0;
-  const vencido = encerrado || faltam === 0;
-  const minutos = String(Math.floor(faltam / 60)).padStart(2, '0');
-  const segundos = String(faltam % 60).padStart(2, '0');
+  const closed = r.status === 'expired' || r.status === 'cancelled';
+  const remaining = secondsLeft ?? 0;
+  const expired = closed || remaining === 0;
+  const minutes = String(Math.floor(remaining / 60)).padStart(2, '0');
+  const seconds = String(remaining % 60).padStart(2, '0');
 
   return (
-    <Screen onRefresh={() => resgate.recarregar(true)}>
+    <Screen onRefresh={() => redemption.reload(true)}>
       <View>
         <Text variant="h2" style={styles.center}>
-          {dados.oferta?.titulo}
+          {r.offer?.title}
         </Text>
         <Text variant="small" tone="muted" style={styles.center}>
-          {dados.parceiro?.nome_fantasia}
+          {r.partner?.name}
         </Text>
       </View>
 
@@ -128,63 +133,64 @@ export function ResgateScreen({
           { borderRadius: radius['2xl'], backgroundColor: palette.white },
         ]}
       >
-        {vencido ? (
-          <Text variant="h3" style={[styles.vencido, styles.escuro]}>
+        {expired ? (
+          <Text variant="h3" style={[styles.expired, styles.dark]}>
             Código vencido
           </Text>
         ) : (
-          <QRCode value={dados.qr_token} size={200} />
+          <QRCode value={r.qrToken} size={200} />
         )}
-        <Text variant="micro" style={styles.rotuloCodigo}>
+        <Text variant="micro" style={styles.codeLabel}>
           CÓDIGO DO RESGATE
         </Text>
-        <Text variant="hero" style={[styles.codigo, styles.escuro]}>
-          {dados.codigo}
+        <Text variant="hero" style={[styles.code, styles.dark]}>
+          {r.code}
         </Text>
       </View>
 
-      <View style={styles.linha}>
+      <View style={styles.line}>
         <Clock size={16} color={colors.highlight} />
-        {vencido ? (
+        {expired ? (
           <Text variant="small" tone="danger">
-            Passou dos {MINUTOS_VALIDADE} minutos — gere outro na oferta.
+            Passou dos {REDEMPTION_VALIDITY_MINUTES} minutos — gere outro na
+            oferta.
           </Text>
         ) : (
           <Text variant="small" tone="muted">
             Vale por mais{' '}
             <Text variant="small" style={styles.bold}>
-              {minutos}:{segundos}
+              {minutes}:{seconds}
             </Text>
           </Text>
         )}
       </View>
 
-      {resgate.erro ? (
+      {redemption.error ? (
         <InlineError text="A internet oscilou. O código acima continua valendo no balcão." />
       ) : null}
 
-      <Card style={styles.linha}>
+      <Card style={styles.line}>
         <WifiOff size={16} color={colors.mutedForeground} />
         <Text variant="caption" tone="muted" style={styles.flex}>
-          Sem sinal no balcão? Fale o código {dados.codigo} — o parceiro digita
-          no painel dele e funciona igual.
+          Sem sinal no balcão? Fale o código {r.code} — o parceiro digita no
+          painel dele e funciona igual.
         </Text>
       </Card>
 
-      <Card style={styles.passos}>
+      <Card style={styles.steps}>
         <Text variant="title">Como usar</Text>
         <Text variant="small" tone="muted">
           1. Avise no caixa que você é do Sou Corre antes de pagar.
         </Text>
         <Text variant="small" tone="muted">
-          2. Mostre o QR ou fale o código {dados.codigo}.
+          2. Mostre o QR ou fale o código {r.code}.
         </Text>
         <Text variant="small" tone="muted">
           3. O parceiro valida e o desconto entra na conta.
         </Text>
-        {dados.oferta?.regras ? (
+        {r.offer?.rules ? (
           <Text variant="small" tone="muted">
-            4. {dados.oferta.regras}
+            4. {r.offer.rules}
           </Text>
         ) : null}
       </Card>
@@ -196,12 +202,12 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   flex: { flex: 1 },
   bold: { fontWeight: '800' },
-  escuro: { color: palette.black },
-  sucesso: { alignItems: 'center', gap: 12, paddingVertical: 48 },
+  dark: { color: palette.black },
+  success: { alignItems: 'center', gap: 12, paddingVertical: 48 },
   qrBox: { alignItems: 'center', padding: 24 },
-  vencido: { paddingVertical: 80 },
-  rotuloCodigo: { marginTop: 20, color: '#6b7280', letterSpacing: 1 },
-  codigo: { letterSpacing: 4 },
-  linha: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  passos: { gap: 6 },
+  expired: { paddingVertical: 80 },
+  codeLabel: { marginTop: 20, color: '#6b7280', letterSpacing: 1 },
+  code: { letterSpacing: 4 },
+  line: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  steps: { gap: 6 },
 });

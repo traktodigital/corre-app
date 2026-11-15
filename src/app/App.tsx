@@ -71,7 +71,7 @@ function MainTabs() {
       {tab === 'trip' ? (
         <TripScreen />
       ) : tab === 'home' ? (
-        <HomeScreen onIrPara={setTab} />
+        <HomeScreen onSelectTab={setTab} />
       ) : tab === 'benefits' ? (
         <BenefitsScreen />
       ) : tab === 'wallet' ? (

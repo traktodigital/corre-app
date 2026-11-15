@@ -9,8 +9,8 @@ import {
   Store,
 } from 'lucide-react-native';
 
-import type { RootNav } from '../../app/navigation';
-import { Screen, TabKey } from '../../shared/layout';
+import type { RootNav } from '../../../app/navigation';
+import { Screen, TabKey } from '../../../shared/layout';
 import {
   Card,
   EmptyState,
@@ -18,43 +18,47 @@ import {
   ListSkeleton,
   SectionTitle,
   Text,
-} from '../../shared/ui';
-import { formatarReal } from '../../shared/format';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { alpha, palette, useTheme } from '../../shared/theme';
-import { firstName, useSession } from '../auth';
+} from '../../../shared/ui';
+import { formatCurrency } from '../../../shared/format';
+import { useQuery } from '../../../shared/hooks/useQuery';
+import { alpha, palette, useTheme } from '../../../shared/theme';
+import { firstName, useSession } from '../../auth';
 import {
-  buscarEconomia,
-  listarOfertasDestaque,
-  listarParceiros,
-} from '../club/api';
-import { CardOferta, CardParceiro } from '../club/components';
+  fetchSavings,
+  listFeaturedOffers,
+  listPartners,
+  OfferCard,
+  PartnerCard,
+} from '../../club';
 
-const atalhos: { label: string; icon: LucideIcon; tab: TabKey }[] = [
+const shortcuts: { label: string; icon: LucideIcon; tab: TabKey }[] = [
   { label: 'Benefícios', icon: Gift, tab: 'benefits' },
   { label: 'Carteirinha', icon: IdCard, tab: 'wallet' },
 ];
 
-export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
+export function HomeScreen({
+  onSelectTab,
+}: {
+  onSelectTab: (tab: TabKey) => void;
+}) {
   const { colors, radius } = useTheme();
   const navigation = useNavigation<RootNav>();
-  const { user, managedAssociationIds: associacoesAdministradas } =
-    useSession();
-  const usuarioId = user?.id ?? null;
+  const { user, managedAssociationIds } = useSession();
+  const userId = user?.id ?? null;
 
-  const economia = useConsulta(usuarioId ? `economia:${usuarioId}` : null, () =>
-    buscarEconomia(usuarioId!),
+  const savings = useQuery(userId ? `savings:${userId}` : null, () =>
+    fetchSavings(userId!),
   );
-  const ofertas = useConsulta('ofertas-destaque', listarOfertasDestaque);
-  const parceiros = useConsulta('parceiros', listarParceiros);
+  const offers = useQuery('featured-offers', listFeaturedOffers);
+  const partners = useQuery('partners', listPartners);
 
   return (
     <Screen
       onRefresh={() =>
         Promise.all([
-          economia.recarregar(true),
-          ofertas.recarregar(true),
-          parceiros.recarregar(true),
+          savings.reload(true),
+          offers.reload(true),
+          partners.reload(true),
         ])
       }
     >
@@ -77,7 +81,7 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
             Você já economizou
           </Text>
           <Text variant="hero" tone="highlight">
-            {formatarReal(economia.dados?.total ?? 0)}
+            {formatCurrency(savings.data?.total ?? 0)}
           </Text>
           <Text variant="caption" tone="muted" style={styles.mt1}>
             {user
@@ -87,7 +91,7 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
         </View>
       </Card>
 
-      {associacoesAdministradas.length > 0 ? (
+      {managedAssociationIds.length > 0 ? (
         <Pressable
           accessibilityRole="button"
           onPress={() => navigation.navigate('MembershipRequestsAdmin')}
@@ -110,11 +114,11 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
       <View>
         <SectionTitle hint="acesso rápido">Bora começar</SectionTitle>
         <View style={styles.grid}>
-          {atalhos.map(({ label, icon: Icon, tab }) => (
+          {shortcuts.map(({ label, icon: Icon, tab }) => (
             <Pressable
               key={label}
               accessibilityRole="button"
-              onPress={() => onIrPara(tab)}
+              onPress={() => onSelectTab(tab)}
               style={[
                 styles.shortcut,
                 {
@@ -135,9 +139,9 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
 
       <View>
         <SectionTitle hint="ofertas do clube">Ofertas em destaque</SectionTitle>
-        {ofertas.carregando ? (
+        {offers.loading ? (
           <ListSkeleton rows={2} />
-        ) : (ofertas.dados ?? []).length === 0 ? (
+        ) : (offers.data ?? []).length === 0 ? (
           <EmptyState
             icon={Store}
             title="Ofertas chegando"
@@ -145,10 +149,10 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
           />
         ) : (
           <View style={styles.list}>
-            {ofertas.dados!.map(o => (
-              <CardOferta
+            {offers.data!.map(o => (
+              <OfferCard
                 key={o.id}
-                oferta={o}
+                offer={o}
                 onPress={() => navigation.navigate('Offer', { id: o.id })}
               />
             ))}
@@ -158,14 +162,14 @@ export function HomeScreen({ onIrPara }: { onIrPara: (tab: TabKey) => void }) {
 
       <View>
         <SectionTitle hint="mais bem avaliados">Parceiros</SectionTitle>
-        {parceiros.carregando ? (
+        {partners.loading ? (
           <ListSkeleton rows={2} />
-        ) : (parceiros.dados ?? []).length === 0 ? null : (
+        ) : (partners.data ?? []).length === 0 ? null : (
           <View style={styles.list}>
-            {parceiros.dados!.slice(0, 3).map(p => (
-              <CardParceiro
+            {partners.data!.slice(0, 3).map(p => (
+              <PartnerCard
                 key={p.id}
-                parceiro={p}
+                partner={p}
                 onPress={() => navigation.navigate('Partner', { id: p.id })}
               />
             ))}
@@ -192,5 +196,4 @@ const styles = StyleSheet.create({
   list: { gap: 12 },
   center: { textAlign: 'center' },
   mt1: { marginTop: 4 },
-  mt4: { marginTop: 16 },
 });
