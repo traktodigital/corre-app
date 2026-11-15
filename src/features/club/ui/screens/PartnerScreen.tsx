@@ -1,7 +1,7 @@
 import { Linking, StyleSheet, View } from 'react-native';
 import { Clock, MapPin, MessageCircle, Store } from 'lucide-react-native';
-import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../shared/layout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Screen } from '../../../../shared/layout';
 import {
   Button,
   Card,
@@ -10,36 +10,35 @@ import {
   ListSkeleton,
   SectionTitle,
   Text,
-} from '../../shared/ui';
-import { soDigitos } from '../../shared/format';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { useTheme } from '../../shared/theme';
-import { buscarParceiro, listarOfertasDoParceiro } from './api';
-import { CardOferta, LogoParceiro } from './components';
+} from '../../../../shared/ui';
+import { onlyDigits } from '../../../../shared/format';
+import { useQuery } from '../../../../shared/hooks/useQuery';
+import { useTheme } from '../../../../shared/theme';
+import { fetchPartner, listPartnerOffers } from '../../data/clubRepository';
+import { OfferCard } from '../components/OfferCard';
+import { PartnerLogo } from '../components/PartnerLogo';
 
-export function ParceiroScreen({ route, navigation }: ScreenProps<'Partner'>) {
+export function PartnerScreen({ route, navigation }: ScreenProps<'Partner'>) {
   const { id } = route.params;
   const { colors } = useTheme();
-  const parceiro = useConsulta(`parceiro:${id}`, () => buscarParceiro(id));
-  const ofertas = useConsulta(`ofertas-parceiro:${id}`, () =>
-    listarOfertasDoParceiro(id),
-  );
+  const partner = useQuery(`partner:${id}`, () => fetchPartner(id));
+  const offers = useQuery(`partner-offers:${id}`, () => listPartnerOffers(id));
 
-  if (parceiro.carregando) {
+  if (partner.loading) {
     return (
       <Screen>
         <ListSkeleton rows={3} />
       </Screen>
     );
   }
-  if (parceiro.erro && parceiro.dados === undefined) {
+  if (partner.error && partner.data === undefined) {
     return (
       <Screen>
-        <ErrorState onRetry={() => parceiro.recarregar()} />
+        <ErrorState onRetry={() => partner.reload()} />
       </Screen>
     );
   }
-  const p = parceiro.dados;
+  const p = partner.data;
   if (!p) {
     return (
       <Screen>
@@ -53,50 +52,48 @@ export function ParceiroScreen({ route, navigation }: ScreenProps<'Partner'>) {
     );
   }
 
-  const endereco = [p.endereco, p.bairro, p.cidade, p.uf]
+  const address = [p.address, p.neighborhood, p.city, p.state]
     .filter(Boolean)
     .join(', ');
-  const whatsapp = soDigitos(p.whatsapp ?? '');
+  const whatsapp = onlyDigits(p.whatsapp ?? '');
 
   return (
     <Screen
-      onRefresh={() =>
-        Promise.all([parceiro.recarregar(true), ofertas.recarregar(true)])
-      }
+      onRefresh={() => Promise.all([partner.reload(true), offers.reload(true)])}
     >
       <Card padding={20} style={styles.header}>
-        <LogoParceiro url={p.logo_url} size={64} />
+        <PartnerLogo url={p.logoUrl} size={64} />
         <View style={styles.flex}>
-          <Text variant="h2">{p.nome_fantasia}</Text>
-          {p.categoria ? (
+          <Text variant="h2">{p.name}</Text>
+          {p.category ? (
             <Text variant="caption" tone="highlight">
-              {p.categoria.nome}
+              {p.category.name}
             </Text>
           ) : null}
         </View>
       </Card>
 
-      {p.descricao ? (
+      {p.description ? (
         <Text variant="small" tone="muted">
-          {p.descricao}
+          {p.description}
         </Text>
       ) : null}
 
-      {endereco || p.horario_funcionamento ? (
+      {address || p.openingHours ? (
         <Card style={styles.infos}>
-          {endereco ? (
+          {address ? (
             <View style={styles.info}>
               <MapPin size={16} color={colors.highlight} />
               <Text variant="small" style={styles.flex}>
-                {endereco}
+                {address}
               </Text>
             </View>
           ) : null}
-          {p.horario_funcionamento ? (
+          {p.openingHours ? (
             <View style={styles.info}>
               <Clock size={16} color={colors.highlight} />
               <Text variant="small" style={styles.flex}>
-                {p.horario_funcionamento}
+                {p.openingHours}
               </Text>
             </View>
           ) : null}
@@ -120,11 +117,11 @@ export function ParceiroScreen({ route, navigation }: ScreenProps<'Partner'>) {
 
       <View>
         <SectionTitle hint="toque pra resgatar">Ofertas</SectionTitle>
-        {ofertas.carregando ? (
+        {offers.loading ? (
           <ListSkeleton rows={2} />
-        ) : ofertas.erro && !ofertas.dados ? (
-          <ErrorState onRetry={() => ofertas.recarregar()} />
-        ) : (ofertas.dados ?? []).length === 0 ? (
+        ) : offers.error && !offers.data ? (
+          <ErrorState onRetry={() => offers.reload()} />
+        ) : (offers.data ?? []).length === 0 ? (
           <EmptyState
             icon={Store}
             title="Sem oferta no ar"
@@ -132,11 +129,11 @@ export function ParceiroScreen({ route, navigation }: ScreenProps<'Partner'>) {
           />
         ) : (
           <View style={styles.list}>
-            {ofertas.dados!.map(o => (
-              <CardOferta
+            {offers.data!.map(o => (
+              <OfferCard
                 key={o.id}
-                oferta={o}
-                nomeParceiro={p.nome_fantasia}
+                offer={o}
+                partnerName={p.name}
                 onPress={() => navigation.navigate('Offer', { id: o.id })}
               />
             ))}

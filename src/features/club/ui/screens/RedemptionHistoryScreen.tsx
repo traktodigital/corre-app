@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Receipt } from 'lucide-react-native';
-import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../shared/layout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Screen } from '../../../../shared/layout';
 import {
   Button,
   Card,
@@ -9,42 +9,43 @@ import {
   ErrorState,
   ListSkeleton,
   Text,
-} from '../../shared/ui';
-import { formatarDataHora, formatarReal } from '../../shared/format';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { useSession } from '../auth';
-import { listarMeusResgates, statusExibido } from './api';
-import { BadgeResgate } from './components';
+} from '../../../../shared/ui';
+import { formatCurrency, formatDateTime } from '../../../../shared/format';
+import { useQuery } from '../../../../shared/hooks/useQuery';
+import { useSession } from '../../../auth';
+import { listUserRedemptions } from '../../data/clubRepository';
+import { displayedStatus } from '../../domain';
+import { RedemptionBadge } from '../components/RedemptionBadge';
 
-export function HistoricoScreen({
+export function RedemptionHistoryScreen({
   navigation,
 }: ScreenProps<'RedemptionHistory'>) {
   const { user } = useSession();
-  const usuarioId = user?.id ?? null;
-  const resgates = useConsulta(usuarioId ? `resgates:${usuarioId}` : null, () =>
-    listarMeusResgates(usuarioId!),
+  const userId = user?.id ?? null;
+  const redemptions = useQuery(userId ? `redemptions:${userId}` : null, () =>
+    listUserRedemptions(userId!),
   );
 
-  if (resgates.carregando) {
+  if (redemptions.loading) {
     return (
       <Screen>
         <ListSkeleton rows={4} />
       </Screen>
     );
   }
-  if (resgates.erro && !resgates.dados) {
+  if (redemptions.error && !redemptions.data) {
     return (
       <Screen>
-        <ErrorState onRetry={() => resgates.recarregar()} />
+        <ErrorState onRetry={() => redemptions.reload()} />
       </Screen>
     );
   }
 
-  const lista = resgates.dados ?? [];
+  const list = redemptions.data ?? [];
 
   return (
-    <Screen onRefresh={() => resgates.recarregar(true)}>
-      {lista.length === 0 ? (
+    <Screen onRefresh={() => redemptions.reload(true)}>
+      {list.length === 0 ? (
         <EmptyState
           icon={Receipt}
           title="Nenhum resgate ainda"
@@ -53,36 +54,36 @@ export function HistoricoScreen({
         />
       ) : (
         <View style={styles.list}>
-          {lista.map(r => {
-            const status = statusExibido(r);
+          {list.map(r => {
+            const status = displayedStatus(r);
             return (
               <Pressable
                 key={r.id}
                 accessibilityRole="button"
-                disabled={status !== 'gerado'}
+                disabled={status !== 'generated'}
                 onPress={() => navigation.navigate('Redemption', { id: r.id })}
               >
                 <Card style={styles.item}>
-                  <View style={styles.topo}>
+                  <View style={styles.top}>
                     <Text variant="title" style={styles.flex} numberOfLines={1}>
-                      {r.oferta?.titulo ?? 'Oferta'}
+                      {r.offer?.title ?? 'Oferta'}
                     </Text>
-                    <BadgeResgate status={status} />
+                    <RedemptionBadge status={status} />
                   </View>
                   <Text variant="caption" tone="muted" numberOfLines={1}>
-                    {r.parceiro?.nome_fantasia} · {r.codigo}
+                    {r.partner?.name} · {r.code}
                   </Text>
-                  <View style={styles.topo}>
+                  <View style={styles.top}>
                     <Text variant="caption" tone="muted">
-                      {formatarDataHora(r.validado_em ?? r.gerado_em)}
+                      {formatDateTime(r.validatedAt ?? r.generatedAt)}
                     </Text>
-                    {status === 'validado' && r.valor_economizado ? (
+                    {status === 'validated' && r.savedAmount ? (
                       <Text
                         variant="caption"
                         tone="highlight"
                         style={styles.bold}
                       >
-                        + {formatarReal(Number(r.valor_economizado))}
+                        + {formatCurrency(r.savedAmount)}
                       </Text>
                     ) : null}
                   </View>
@@ -99,7 +100,7 @@ export function HistoricoScreen({
 const styles = StyleSheet.create({
   list: { gap: 12 },
   item: { gap: 4 },
-  topo: {
+  top: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

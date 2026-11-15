@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Search, Store } from 'lucide-react-native';
-import type { RootNav } from '../../app/navigation';
-import { Screen } from '../../shared/layout';
+import type { RootNav } from '../../../../app/navigation';
+import { Screen } from '../../../../shared/layout';
 import {
   Button,
   EmptyState,
@@ -17,52 +17,53 @@ import {
   ListSkeleton,
   SectionTitle,
   Text,
-} from '../../shared/ui';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { alpha, palette, useTheme } from '../../shared/theme';
+} from '../../../../shared/ui';
+import { useQuery } from '../../../../shared/hooks/useQuery';
+import { alpha, palette, useTheme } from '../../../../shared/theme';
 import {
-  listarCategorias,
-  listarOfertasDestaque,
-  listarParceiros,
-} from './api';
-import { CardOferta, CardParceiro } from './components';
+  listCategories,
+  listFeaturedOffers,
+  listPartners,
+} from '../../data/clubRepository';
+import { OfferCard } from '../components/OfferCard';
+import { PartnerCard } from '../components/PartnerCard';
 
-const TODAS = 'todas';
+const ALL = 'all';
 
-const LOTE = 20;
+const PAGE_SIZE = 20;
 
-export function BeneficiosScreen() {
+export function BenefitsScreen() {
   const navigation = useNavigation<RootNav>();
   const { colors, radius } = useTheme();
-  const [categoria, setCategoria] = useState(TODAS);
-  const [busca, setBusca] = useState('');
+  const [category, setCategory] = useState(ALL);
+  const [search, setSearch] = useState('');
 
-  const [visiveis, setVisiveis] = useState(LOTE);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const categorias = useConsulta('categorias', listarCategorias);
-  const parceiros = useConsulta('parceiros', listarParceiros);
-  const destaques = useConsulta('ofertas-destaque', listarOfertasDestaque);
+  const categories = useQuery('categories', listCategories);
+  const partners = useQuery('partners', listPartners);
+  const featured = useQuery('featured-offers', listFeaturedOffers);
 
-  const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    return (parceiros.dados ?? []).filter(
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return (partners.data ?? []).filter(
       p =>
-        (categoria === TODAS || p.categoria?.id === categoria) &&
-        (!termo || p.nome_fantasia.toLowerCase().includes(termo)),
+        (category === ALL || p.category?.id === category) &&
+        (!term || p.name.toLowerCase().includes(term)),
     );
-  }, [parceiros.dados, categoria, busca]);
+  }, [partners.data, category, search]);
 
-  const filtrando = busca.trim() !== '' || categoria !== TODAS;
+  const filtering = search.trim() !== '' || category !== ALL;
 
-  const recarregar = () =>
+  const reload = () =>
     Promise.all([
-      categorias.recarregar(true),
-      parceiros.recarregar(true),
-      destaques.recarregar(true),
+      categories.reload(true),
+      partners.reload(true),
+      featured.reload(true),
     ]);
 
   return (
-    <Screen onRefresh={recarregar}>
+    <Screen onRefresh={reload}>
       <View>
         <Text variant="h1">Benefícios</Text>
         <Text variant="small" tone="muted">
@@ -70,14 +71,14 @@ export function BeneficiosScreen() {
         </Text>
       </View>
 
-      {(destaques.dados ?? []).length > 0 ? (
+      {(featured.data ?? []).length > 0 ? (
         <View>
           <SectionTitle hint="ofertas do clube">Em destaque</SectionTitle>
           <View style={styles.list}>
-            {destaques.dados!.map(o => (
-              <CardOferta
+            {featured.data!.map(o => (
+              <OfferCard
                 key={o.id}
-                oferta={o}
+                offer={o}
                 onPress={() => navigation.navigate('Offer', { id: o.id })}
               />
             ))}
@@ -87,14 +88,14 @@ export function BeneficiosScreen() {
 
       <View style={styles.gap}>
         <SectionTitle
-          hint={parceiros.dados ? `${filtrados.length} no ar` : undefined}
+          hint={partners.data ? `${filtered.length} no ar` : undefined}
         >
           Parceiros
         </SectionTitle>
 
         <View
           style={[
-            styles.busca,
+            styles.search,
             {
               borderRadius: radius.md,
               borderColor: colors.input,
@@ -108,36 +109,36 @@ export function BeneficiosScreen() {
             placeholder="Buscar parceiro"
             placeholderTextColor={colors.mutedForeground}
             selectionColor={colors.highlight}
-            value={busca}
+            value={search}
             onChangeText={t => {
-              setBusca(t);
-              setVisiveis(LOTE);
+              setSearch(t);
+              setVisibleCount(PAGE_SIZE);
             }}
-            style={[styles.buscaInput, { color: colors.foreground }]}
+            style={[styles.searchInput, { color: colors.foreground }]}
           />
         </View>
 
-        {(categorias.dados ?? []).length > 0 ? (
+        {(categories.data ?? []).length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.pills}
           >
-            {[{ id: TODAS, nome: 'Todas' }, ...categorias.dados!].map(c => {
-              const ativa = categoria === c.id;
+            {[{ id: ALL, name: 'Todas' }, ...categories.data!].map(c => {
+              const active = category === c.id;
               return (
                 <Pressable
                   key={c.id}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: ativa }}
+                  accessibilityState={{ selected: active }}
                   onPress={() => {
-                    setCategoria(c.id);
-                    setVisiveis(LOTE);
+                    setCategory(c.id);
+                    setVisibleCount(PAGE_SIZE);
                   }}
                   style={[
                     styles.pill,
                     { borderRadius: radius.full },
-                    ativa
+                    active
                       ? {
                           borderColor: colors.highlight,
                           backgroundColor: alpha(palette.green, 0.15),
@@ -150,10 +151,10 @@ export function BeneficiosScreen() {
                 >
                   <Text
                     variant="caption"
-                    tone={ativa ? 'highlight' : 'default'}
+                    tone={active ? 'highlight' : 'default'}
                     style={styles.bold}
                   >
-                    {c.nome}
+                    {c.name}
                   </Text>
                 </Pressable>
               );
@@ -161,34 +162,34 @@ export function BeneficiosScreen() {
           </ScrollView>
         ) : null}
 
-        {parceiros.carregando ? (
+        {partners.loading ? (
           <ListSkeleton rows={4} />
-        ) : parceiros.erro && !parceiros.dados ? (
-          <ErrorState onRetry={() => parceiros.recarregar()} />
-        ) : filtrados.length === 0 ? (
+        ) : partners.error && !partners.data ? (
+          <ErrorState onRetry={() => partners.reload()} />
+        ) : filtered.length === 0 ? (
           <EmptyState
             icon={Store}
-            title={filtrando ? 'Nada por aqui' : 'Parceiros chegando'}
+            title={filtering ? 'Nada por aqui' : 'Parceiros chegando'}
             description={
-              filtrando
+              filtering
                 ? 'Tenta outra categoria ou outro nome.'
                 : 'Os primeiros parceiros entram no ar no lançamento. Volta já já.'
             }
           />
         ) : (
           <View style={styles.list}>
-            {filtrados.slice(0, visiveis).map(p => (
-              <CardParceiro
+            {filtered.slice(0, visibleCount).map(p => (
+              <PartnerCard
                 key={p.id}
-                parceiro={p}
+                partner={p}
                 onPress={() => navigation.navigate('Partner', { id: p.id })}
               />
             ))}
-            {filtrados.length > visiveis ? (
+            {filtered.length > visibleCount ? (
               <Button
-                title={`Carregar mais (${filtrados.length - visiveis})`}
+                title={`Carregar mais (${filtered.length - visibleCount})`}
                 variant="outline"
-                onPress={() => setVisiveis(v => v + LOTE)}
+                onPress={() => setVisibleCount(v => v + PAGE_SIZE)}
               />
             ) : null}
           </View>
@@ -201,7 +202,7 @@ export function BeneficiosScreen() {
 const styles = StyleSheet.create({
   list: { gap: 12 },
   gap: { gap: 12 },
-  busca: {
+  search: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
   },
-  buscaInput: { flex: 1, fontSize: 16, height: '100%' },
+  searchInput: { flex: 1, fontSize: 16, height: '100%' },
   pills: { gap: 8 },
   pill: { borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8 },
   bold: { fontWeight: '700' },

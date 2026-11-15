@@ -6,8 +6,8 @@ import {
   IdCard,
   LogIn,
 } from 'lucide-react-native';
-import type { ScreenProps } from '../../app/navigation';
-import { Screen } from '../../shared/layout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Screen } from '../../../../shared/layout';
 import {
   Badge,
   Button,
@@ -17,64 +17,62 @@ import {
   InlineError,
   ListSkeleton,
   Text,
-} from '../../shared/ui';
-import { formatarData } from '../../shared/format';
-import { useConsulta } from '../../shared/hooks/useQuery';
-import { useTheme } from '../../shared/theme';
-import { useSession } from '../auth';
-import {
-  buscarOferta,
-  criarResgate,
-  MINUTOS_VALIDADE,
-  resumoDesconto,
-} from './api';
+} from '../../../../shared/ui';
+import { formatDate } from '../../../../shared/format';
+import { useQuery } from '../../../../shared/hooks/useQuery';
+import { useTheme } from '../../../../shared/theme';
+import { useSession } from '../../../auth';
+import { createRedemption, fetchOffer } from '../../data/clubRepository';
+import { discountSummary, REDEMPTION_VALIDITY_MINUTES } from '../../domain';
 
-export function OfertaScreen({ route, navigation }: ScreenProps<'Offer'>) {
+type RedeemError = { reason: string; requiresMembership?: boolean };
+
+export function OfferScreen({ route, navigation }: ScreenProps<'Offer'>) {
   const { id } = route.params;
   const { colors } = useTheme();
-  const { user, leaveGuestMode: sairDoModoVisitante } = useSession();
-  const oferta = useConsulta(`oferta:${id}`, () => buscarOferta(id));
-  const [gerando, setGerando] = useState(false);
-  const [erro, setErro] = useState<{
-    motivo: string;
-    precisaAssociar?: boolean;
-  } | null>(null);
+  const { user, leaveGuestMode } = useSession();
+  const offer = useQuery(`offer:${id}`, () => fetchOffer(id));
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<RedeemError | null>(null);
 
-  async function resgatar() {
+  async function redeem() {
     if (!user) {
       return;
     }
-    setErro(null);
-    setGerando(true);
+    setError(null);
+    setGenerating(true);
     try {
-      const r = await criarResgate(id, user.id);
-      if (r.ok) {
-        navigation.navigate('Redemption', { id: r.resgateId });
+      const result = await createRedemption(id, user.id);
+      if (result.ok) {
+        navigation.navigate('Redemption', { id: result.redemptionId });
       } else {
-        setErro({ motivo: r.motivo, precisaAssociar: r.precisaAssociar });
+        setError({
+          reason: result.reason,
+          requiresMembership: result.requiresMembership,
+        });
       }
     } catch {
-      setErro({ motivo: 'A internet oscilou. Tenta de novo em instantes.' });
+      setError({ reason: 'A internet oscilou. Tenta de novo em instantes.' });
     } finally {
-      setGerando(false);
+      setGenerating(false);
     }
   }
 
-  if (oferta.carregando) {
+  if (offer.loading) {
     return (
       <Screen>
         <ListSkeleton rows={2} />
       </Screen>
     );
   }
-  if (oferta.erro && oferta.dados === undefined) {
+  if (offer.error && offer.data === undefined) {
     return (
       <Screen>
-        <ErrorState onRetry={() => oferta.recarregar()} />
+        <ErrorState onRetry={() => offer.reload()} />
       </Screen>
     );
   }
-  const o = oferta.dados;
+  const o = offer.data;
   if (!o) {
     return (
       <Screen>
@@ -88,64 +86,64 @@ export function OfertaScreen({ route, navigation }: ScreenProps<'Offer'>) {
     );
   }
 
-  const desconto = resumoDesconto(o);
-  const validade = formatarData(o.validade_fim);
-  const parceiroId = o.parceiro?.id;
+  const discount = discountSummary(o);
+  const validUntil = formatDate(o.validUntil);
+  const partnerId = o.partner?.id;
 
   return (
     <Screen>
       <View style={styles.gap}>
-        {o.exclusivo_associados ? (
+        {o.membersOnly ? (
           <Badge status="associado" label="Exclusivo associado" />
         ) : null}
-        <Text variant="h1">{o.titulo}</Text>
-        {o.parceiro && parceiroId ? (
+        <Text variant="h1">{o.title}</Text>
+        {o.partner && partnerId ? (
           <Pressable
             accessibilityRole="link"
-            onPress={() => navigation.navigate('Partner', { id: parceiroId })}
+            onPress={() => navigation.navigate('Partner', { id: partnerId })}
           >
             <Text variant="small" tone="highlight" style={styles.bold}>
-              {o.parceiro.nome_fantasia}
+              {o.partner.name}
             </Text>
           </Pressable>
         ) : null}
       </View>
 
-      {desconto ? (
+      {discount ? (
         <Card padding={20} glowing>
           <Text variant="caption" tone="muted">
             Seu benefício
           </Text>
           <Text variant="hero" tone="highlight">
-            {desconto}
+            {discount}
           </Text>
         </Card>
       ) : null}
 
-      {o.descricao ? <Text variant="small">{o.descricao}</Text> : null}
+      {o.description ? <Text variant="small">{o.description}</Text> : null}
 
       <Card style={styles.gap}>
-        {validade ? (
+        {validUntil ? (
           <View style={styles.info}>
             <CalendarClock size={16} color={colors.highlight} />
-            <Text variant="small">Vale até {validade}</Text>
+            <Text variant="small">Vale até {validUntil}</Text>
           </View>
         ) : null}
         <Text variant="small" tone="muted">
-          O código gerado vale por {MINUTOS_VALIDADE} minutos. Gere só quando
-          estiver no balcão.
+          O código gerado vale por {REDEMPTION_VALIDITY_MINUTES} minutos. Gere
+          só quando estiver no balcão.
         </Text>
-        {o.regras ? (
+        {o.rules ? (
           <Text variant="small" tone="muted">
-            {o.regras}
+            {o.rules}
           </Text>
         ) : null}
       </Card>
 
-      {erro ? (
+      {error ? (
         <View style={styles.gap}>
-          <InlineError text={erro.motivo} />
-          {erro.precisaAssociar ? (
+          <InlineError text={error.reason} />
+          {error.requiresMembership ? (
             <Button
               variant="outline"
               title="Quero me filiar à ASSEMAG"
@@ -159,16 +157,16 @@ export function OfertaScreen({ route, navigation }: ScreenProps<'Offer'>) {
       {user ? (
         <Button
           size="lg"
-          title={gerando ? 'Gerando código...' : 'Resgatar agora'}
-          loading={gerando}
-          onPress={resgatar}
+          title={generating ? 'Gerando código...' : 'Resgatar agora'}
+          loading={generating}
+          onPress={redeem}
         />
       ) : (
         <Button
           size="lg"
           title="Entrar pra resgatar"
           icon={<LogIn size={16} color={colors.primaryForeground} />}
-          onPress={sairDoModoVisitante}
+          onPress={leaveGuestMode}
         />
       )}
     </Screen>
