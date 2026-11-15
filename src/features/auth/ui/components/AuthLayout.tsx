@@ -6,9 +6,9 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Logo } from '../../shared/layout/Logo';
-import { Text } from '../../shared/ui';
-import { useTheme } from '../../shared/theme';
+import { Logo } from '../../../../shared/layout/Logo';
+import { Text } from '../../../../shared/ui';
+import { useTheme } from '../../../../shared/theme';
 
 export function AuthLayout({
   title,

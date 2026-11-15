@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
 import { MailCheck } from 'lucide-react-native';
-import type { ScreenProps } from '../../app/navigation';
-import { Button, Card, IconBox, Text } from '../../shared/ui';
-import { useTheme } from '../../shared/theme';
-import { AuthLayout } from './AuthLayout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Button, Card, IconBox, Text } from '../../../../shared/ui';
+import { useTheme } from '../../../../shared/theme';
+import { AuthLayout } from '../components/AuthLayout';
 
 export function ConfirmEmailScreen({
   navigation,

@@ -1,9 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 import { CheckCircle2 } from 'lucide-react-native';
-import { Text } from '../../shared/ui';
-import { alpha, palette, useTheme } from '../../shared/theme';
+import { Text } from '../../../../shared/ui';
+import { alpha, palette, useTheme } from '../../../../shared/theme';
 
-export function Aviso({ text }: { text: string }) {
+export function Notice({ text }: { text: string }) {
   const { colors, radius } = useTheme();
   return (
     <View

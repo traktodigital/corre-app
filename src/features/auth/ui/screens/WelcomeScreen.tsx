@@ -1,23 +1,21 @@
 import { StyleSheet, View } from 'react-native';
 import { Gift, IdCard } from 'lucide-react-native';
 
-import type { ScreenProps } from '../../app/navigation';
-import { Button, Card, IconBox, Text } from '../../shared/ui';
-import { useTheme } from '../../shared/theme';
-import { AuthLayout } from './AuthLayout';
+import type { ScreenProps } from '../../../../app/navigation';
+import { Button, Card, IconBox, Text } from '../../../../shared/ui';
+import { useTheme } from '../../../../shared/theme';
+import { AuthLayout } from '../components/AuthLayout';
 
-const destaques = [
+const highlights = [
   {
     icon: Gift,
-    titulo: 'Descontos de verdade no seu corre',
-    texto:
-      'Óleo, peça, lanche, oficina e capacete com preço de quem roda o dia inteiro.',
+    title: 'Descontos de verdade no seu corre',
+    text: 'Óleo, peça, lanche, oficina e capacete com preço de quem roda o dia inteiro.',
   },
   {
     icon: IdCard,
-    titulo: 'Sua associação no bolso',
-    texto:
-      'Carteirinha digital com QR, mensalidade em dia e a papelada organizada.',
+    title: 'Sua associação no bolso',
+    text: 'Carteirinha digital com QR, mensalidade em dia e a papelada organizada.',
   },
 ];
 
@@ -30,15 +28,15 @@ export function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
       subtitle="O app de quem move a cidade. Desconto no que você usa, carteirinha na mão e o seu corre organizado."
     >
       <View style={styles.list}>
-        {destaques.map(({ icon: Icon, titulo, texto }) => (
-          <Card key={titulo} style={styles.row}>
+        {highlights.map(({ icon: Icon, title, text }) => (
+          <Card key={title} style={styles.row}>
             <IconBox>
               <Icon size={20} color={colors.highlight} />
             </IconBox>
             <View style={styles.flex}>
-              <Text variant="title">{titulo}</Text>
+              <Text variant="title">{title}</Text>
               <Text variant="caption" tone="muted">
-                {texto}
+                {text}
               </Text>
             </View>
           </Card>
