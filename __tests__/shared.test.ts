@@ -41,3 +41,11 @@ describe('datas em Brasília', () => {
     ).toBe('2026-11-01T03:00:00.000Z');
   });
 });
+
+describe('CPF mascarado no cache offline', () => {
+  test('hideCpf não estraga um CPF que já está mascarado', () => {
+    const hidden = hideCpf('52998224725');
+    expect(hidden).toBe('***.982.247-**');
+    expect(hideCpf(hidden)).toBe(hidden);
+  });
+});

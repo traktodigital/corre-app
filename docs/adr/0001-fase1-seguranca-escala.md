@@ -264,3 +264,29 @@ Esforço: P = horas, M = dias.
 | **Nova:** oferta exclusiva é global ou por associação? | Por associação | Léo |
 | **Nova:** gateway Asaas ou Mercado Pago | — | Léo |
 | **Nova:** orçamento de OTP por SMS | — | Léo |
+
+## 9. Status de implementação (15/11/2026)
+
+| # | Situação | Onde |
+|---|---|---|
+| M1 | ✅ Funções `corre_expirar_resgates` e `corre_limpar_tokens_carteirinha` + jobs `pg_cron` (cada 1 min / 10 min). **Habilitar `pg_cron`** no Supabase antes de aplicar | `partes/9-escala.sql` |
+| M2 | ✅ Índices `resgates (usuario_id, gerado_em)`, `(oferta_id, status)`, validados por data, `tentativas_validacao (parceiro_id, criado_em)`, `tokens_carteirinha (expira_em)` | parte 9 |
+| M3 | ✅ Lock por usuário sempre e por oferta só com `limite_total` | parte 9 |
+| M4 | ⏳ Painel web (outro repositório) | — |
+| M5 | ✅ Cache offline guarda o CPF já mascarado (`***.982.247-**`) | `wallet/data/walletRepository.ts`, `shared/format.ts` |
+| M6 | ✅ UF vem da associação escolhida (sem `'GO'` fixo); nome de uma palavra só é aviso na filiação | `wallet/ui/screens/MembershipRequestScreen.tsx` |
+| M7 | ✅ CI no GitHub Actions: tsc, eslint, prettier, Jest e a suíte SQL completa (156 checagens) num Postgres 17. As migrations continuam sendo aplicadas à mão | `.github/workflows/ci.yml`, `teste/rodar.sh` |
+| M8 | ⏳ Conferência manual no painel do Supabase | — |
+| M9 | ⏳ RPC `gerar_resgate` única | — |
+| M10 | ✅ Polling do resgate: 5 s nos 2 primeiros minutos, 15 s até 10 min, 30 s depois | `club/domain/redemption.ts` |
+| M11 | ⏳ Ofertas por associação (depende da decisão do Léo) | — |
+| M12 | ✅ Políticas de `resgates`, `usuarios`, `associados` e `solicitacoes_filiacao` com `(select auth.uid())` | parte 9 |
+| M13 | ⏳ Fatura como snapshot imutável | — |
+| M14 | ✅ Número da carteirinha por contador `carteirinha_sequencias`, sincronizado por trigger com qualquer insert (inclusive do painel web) | parte 9 |
+| M15 | ⏳ Crash reporting (falta escolher ferramenta) | — |
+| M16 | ✅ Limite de validação também por parceiro (10/min, 40/h) + índice único de filiação pendente; o app trata o duplicado como "já enviado" | parte 9, `walletRepository.ts` |
+
+**Aplicar no Supabase**, nesta ordem: parte 8 (se ainda não foi) → **habilitar `pg_cron`** →
+parte 9. A parte 9 pode ser reaplicada sem efeito colateral. Ela fecha pedidos de filiação
+pendentes duplicados (mantém o mais antigo, os outros viram `cancelada`) antes de criar o
+índice único. **Confirmar que o enum de status aceita `cancelada`.**
