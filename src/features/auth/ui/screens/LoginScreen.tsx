@@ -1,50 +1,50 @@
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import type { ScreenProps } from '../../app/navigation';
+import type { ScreenProps } from '../../../../app/navigation';
 import {
   Button,
   InlineError,
   Input,
   Text,
   TextInputRef,
-} from '../../shared/ui';
-import { AuthLayout } from './AuthLayout';
-import { useAuth } from './AuthProvider';
-import { Aviso } from './Aviso';
+} from '../../../../shared/ui';
+import { useAuthActions } from '../AuthProvider';
+import { AuthLayout } from '../components/AuthLayout';
+import { Notice } from '../components/Notice';
 
 export function LoginScreen({ navigation }: ScreenProps<'Login'>) {
-  const { entrar, recuperarSenha } = useAuth();
+  const { signIn, requestPasswordReset } = useAuthActions();
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
-  const senhaRef = useRef<TextInputRef>(null);
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const passwordRef = useRef<TextInputRef>(null);
 
-  async function onEntrar() {
-    setErro(null);
-    setAviso(null);
-    if (!email.trim() || !senha) {
-      setErro('Preenche e-mail e senha pra entrar.');
+  async function onSignIn() {
+    setError(null);
+    setNotice(null);
+    if (!email.trim() || !password) {
+      setError('Preenche e-mail e senha pra entrar.');
       return;
     }
-    setEnviando(true);
-    const { erro: e } = await entrar(email, senha);
-    setEnviando(false);
+    setSubmitting(true);
+    const result = await signIn(email, password);
+    setSubmitting(false);
 
-    if (e) {
-      setErro(e);
+    if (result.error) {
+      setError(result.error);
     }
   }
 
-  async function onEsqueci() {
-    setErro(null);
-    setAviso(null);
-    const { erro: e } = await recuperarSenha(email);
-    if (e) {
-      setErro(e);
+  async function onForgotPassword() {
+    setError(null);
+    setNotice(null);
+    const result = await requestPasswordReset(email);
+    if (result.error) {
+      setError(result.error);
     } else {
-      setAviso('Link enviado. Olha sua caixa de e-mail.');
+      setNotice('Link enviado. Olha sua caixa de e-mail.');
     }
   }
 
@@ -76,37 +76,41 @@ export function LoginScreen({ navigation }: ScreenProps<'Login'>) {
         autoComplete="email"
         textContentType="emailAddress"
         returnKeyType="next"
-        onSubmitEditing={() => senhaRef.current?.focus()}
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
       <Input
-        ref={senhaRef}
+        ref={passwordRef}
         label="Senha"
         placeholder="Sua senha"
-        value={senha}
-        onChangeText={setSenha}
+        value={password}
+        onChangeText={setPassword}
         secureTextEntry
         autoComplete="current-password"
         textContentType="password"
         returnKeyType="go"
-        onSubmitEditing={onEntrar}
+        onSubmitEditing={onSignIn}
       />
 
       <View style={styles.forgot}>
-        <Pressable accessibilityRole="button" onPress={onEsqueci} hitSlop={8}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={onForgotPassword}
+          hitSlop={8}
+        >
           <Text variant="small" tone="highlight" style={styles.bold}>
             Esqueci minha senha
           </Text>
         </Pressable>
       </View>
 
-      {erro ? <InlineError text={erro} /> : null}
-      {aviso ? <Aviso text={aviso} /> : null}
+      {error ? <InlineError text={error} /> : null}
+      {notice ? <Notice text={notice} /> : null}
 
       <Button
         size="lg"
-        title={enviando ? 'Entrando...' : 'Entrar'}
-        loading={enviando}
-        onPress={onEntrar}
+        title={submitting ? 'Entrando...' : 'Entrar'}
+        loading={submitting}
+        onPress={onSignIn}
       />
     </AuthLayout>
   );
