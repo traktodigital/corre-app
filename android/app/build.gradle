@@ -124,6 +124,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    testImplementation("junit:junit:4.13.2")
 }
 
 // Release sem keystore de upload falha cedo, com instrução, em vez de gerar AAB

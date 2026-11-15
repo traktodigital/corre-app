@@ -14,7 +14,17 @@ psql -h localhost -p 54329 -U postgres -d corre -f ../seguranca-fase1.sql
 psql -h localhost -p 54329 -U authenticator -d corre -f 2-ataques.sql
 psql -h localhost -p 54329 -U postgres -d corre -f 3-backend.sql
 psql -h localhost -p 54329 -U postgres -d corre -f 4-excluir-minha-conta.sql
+psql -h localhost -p 54329 -U postgres -d corre -f ../partes/8-jornada.sql
+psql -h localhost -p 54329 -U authenticator -d corre -f 5-jornada.sql
 ```
+
+`5-jornada.sql` (43 checagens): jornada nasce do dono e com horário do servidor,
+uma aberta por vez, app marcado na abertura sem valor (valor + comprovante no
+encerramento), ganho por app (duplicado, inexistente, absurdo), combustível e
+CNPJ inválidos, abastecimento com preço/litro e `sem_cupom` calculados pelo
+banco, encerrar/reabrir, suspeita por velocidade impossível,
+resumo (km, ganho, gasto, lucro, custo/km, por app), isolamento entre usuários,
+anônimo bloqueado e exclusão de conta apagando tudo.
 
 Toda linha deve começar com `OK`. Qualquer `FALHA` é brecha.
 

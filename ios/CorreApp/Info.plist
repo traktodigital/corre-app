@@ -34,7 +34,17 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>O CORRE usa sua localização durante a jornada para contar os km rodados, mesmo quando você troca para outro app. Fora da jornada, não rastreia.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>O CORRE usa a câmera pra foto do painel, do cupom do posto e do marcador de combustível da sua jornada.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O CORRE abre sua galeria só quando você escolhe uma foto ou print pra jornada.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
