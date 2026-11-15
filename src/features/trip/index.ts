@@ -1,5 +1,5 @@
-export { AbastecimentoScreen as RefuelScreen } from './AbastecimentoScreen';
-export { EncerrarJornadaScreen as EndTripScreen } from './EncerrarJornadaScreen';
-export { EntregasScreen as TripScreen } from './EntregasScreen';
-export { IniciarJornadaScreen as StartTripScreen } from './IniciarJornadaScreen';
-export { ResumoJornadaScreen as TripSummaryScreen } from './ResumoJornadaScreen';
+export { EndTripScreen } from './ui/screens/EndTripScreen';
+export { RefuelScreen } from './ui/screens/RefuelScreen';
+export { StartTripScreen } from './ui/screens/StartTripScreen';
+export { TripScreen } from './ui/screens/TripScreen';
+export { TripSummaryScreen } from './ui/screens/TripSummaryScreen';

@@ -34,7 +34,7 @@
         </intent-filter>
       </activity>
       <service
-        android:name=".jornada.JornadaService"
+        android:name=".trip.TripTrackerService"
         android:exported="false"
         android:foregroundServiceType="location" />
     </application>
