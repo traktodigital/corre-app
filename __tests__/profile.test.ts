@@ -1,12 +1,12 @@
-import { validarPerfil } from '../src/features/profile/EditarPerfilScreen';
+import { validateProfile } from '../src/features/profile/domain/validation';
 
-describe('validarPerfil', () => {
+describe('validateProfile', () => {
   test('exige nome completo', () => {
     expect(
-      validarPerfil({
-        nome: 'Ana',
-        telefone: '(62) 9 9999-8888',
-        cidade: 'Goiânia',
+      validateProfile({
+        name: 'Ana',
+        phone: '(62) 9 9999-8888',
+        city: 'Goiânia',
       }),
     ).toMatch(/nome completo/);
   });
