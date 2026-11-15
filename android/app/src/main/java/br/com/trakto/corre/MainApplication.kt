@@ -14,7 +14,7 @@ class MainApplication : Application(), ReactApplication {
       context = applicationContext,
       packageList =
         PackageList(this).packages.apply {
-          add(br.com.trakto.corre.jornada.JornadaPackage())
+          add(br.com.trakto.corre.trip.TripTrackerPackage())
         },
     )
   }
