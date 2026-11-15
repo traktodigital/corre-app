@@ -30,7 +30,7 @@ import { PhotoField } from '../components/PhotoField';
 import { tripQueryKeys } from '../queryKeys';
 
 export function RefuelScreen({ navigation, route }: ScreenProps<'Refuel'>) {
-  const { jornadaId: tripId } = route.params;
+  const { tripId } = route.params;
   const { user } = useSession();
   const { colors } = useTheme();
   const openTripQuery = useQuery(

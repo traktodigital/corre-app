@@ -168,17 +168,13 @@ export function TripScreen() {
             title="Registrar abastecimento"
             size="lg"
             icon={<Fuel size={18} color={colors.primaryForeground} />}
-            onPress={() =>
-              navigation.navigate('Refuel', { jornadaId: trip.id })
-            }
+            onPress={() => navigation.navigate('Refuel', { tripId: trip.id })}
           />
           <Button
             title="Encerrar jornada"
             variant="outline"
             icon={<Square size={16} color={colors.foreground} />}
-            onPress={() =>
-              navigation.navigate('EndTrip', { jornadaId: trip.id })
-            }
+            onPress={() => navigation.navigate('EndTrip', { tripId: trip.id })}
           />
         </Card>
       ) : (

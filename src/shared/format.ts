@@ -71,14 +71,3 @@ export const vehicleLabel: Record<string, string> = {
   carro: 'Carro',
   a_pe: 'A pé',
 };
-
-export {
-  formatCurrency as formatarReal,
-  formatDate as formatarData,
-  formatDateTime as formatarDataHora,
-  onlyDigits as soDigitos,
-  maskCpf as mascararCpf,
-  hideCpf as ocultarCpf,
-  isValidCpf as cpfValido,
-  vehicleLabel as rotuloVeiculo,
-};

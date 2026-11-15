@@ -40,7 +40,7 @@ type EarningForm = { amount: string; rides: string; receipts: LocalFile[] };
 const EMPTY_EARNING: EarningForm = { amount: '', rides: '', receipts: [] };
 
 export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
-  const { jornadaId: tripId } = route.params;
+  const { tripId } = route.params;
   const { user } = useSession();
   const { colors } = useTheme();
   const openTripQuery = useQuery(
@@ -117,7 +117,7 @@ export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
         routePath,
       });
       await locationTracker.stop();
-      navigation.replace('TripSummary', { jornadaId: tripId });
+      navigation.replace('TripSummary', { tripId });
     } catch {
       setError(
         'Não deu pra encerrar. Confere a internet e tenta de novo — o GPS continua contando.',

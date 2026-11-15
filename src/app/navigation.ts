@@ -21,9 +21,9 @@ export type RootStackParamList = {
   MembershipRequest: undefined;
 
   StartTrip: undefined;
-  Refuel: { jornadaId: string };
-  EndTrip: { jornadaId: string };
-  TripSummary: { jornadaId: string };
+  Refuel: { tripId: string };
+  EndTrip: { tripId: string };
+  TripSummary: { tripId: string };
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> =

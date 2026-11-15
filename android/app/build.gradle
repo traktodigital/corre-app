@@ -125,7 +125,6 @@ dependencies {
         implementation jscFlavor
     }
 
-    // Teste do filtro de km da jornada (KmAcumuladorTest).
     testImplementation("junit:junit:4.13.2")
 }
 

@@ -4,8 +4,8 @@ import {
   requestCamera,
   requestLocation,
   requestNotifications,
-} from '.';
-import * as locationTracker from '../device/location';
+} from '../src/core/permissions';
+import * as locationTracker from '../src/core/device/location';
 
 jest.mock('react-native', () => ({
   Platform: { OS: 'android', Version: 34 },

@@ -12,7 +12,7 @@ export function TripSummaryScreen({
   navigation,
   route,
 }: ScreenProps<'TripSummary'>) {
-  const { jornadaId: tripId } = route.params;
+  const { tripId } = route.params;
   const summary = useQuery(tripQueryKeys.tripSummary(tripId), () =>
     fetchTripSummary(tripId),
   );

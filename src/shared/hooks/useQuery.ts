@@ -91,24 +91,3 @@ export function useQuery<T>(
     reload,
   };
 }
-
-export type Consulta<T> = {
-  dados: T | undefined;
-  carregando: boolean;
-  erro: boolean;
-  recarregar: (silencioso?: boolean) => Promise<void>;
-};
-
-export function useConsulta<T>(
-  chave: string | null,
-  buscar: () => Promise<T>,
-  opcoes: { intervaloMs?: number } = {},
-): Consulta<T> {
-  const q = useQuery(chave, buscar, { intervalMs: opcoes.intervaloMs });
-  return {
-    dados: q.data,
-    carregando: q.loading,
-    erro: q.error,
-    recarregar: q.reload,
-  };
-}
