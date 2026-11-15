@@ -15,7 +15,15 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: cp src/core/config/env.example.ts src/core/config/env.ts
+      - name: env.ts de teste (sem segredos)
+        run: |
+          cat > src/core/config/env.ts <<'TS'
+          export const env = {
+            SITE_URL: 'https://www.soucorre.com.br',
+            SUPABASE_URL: 'https://ci.supabase.co',
+            SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_ci',
+          };
+          TS
       - run: npx tsc --noEmit
       - run: npx eslint src __tests__
       - run: npx prettier --check src __tests__
