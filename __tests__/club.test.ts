@@ -2,6 +2,7 @@ import {
   discountSummary,
   displayedStatus,
   generateRedemptionCode,
+  pollIntervalMs,
   REDEMPTION_VALIDITY_MINUTES,
   refusalFromDbMessage,
   type OfferPricing,
@@ -139,5 +140,16 @@ describe('mapeamento das linhas do banco (PT) para o domínio (EN)', () => {
       offer: { title: 'Lavagem' },
       partner: { name: 'Lava Jato' },
     });
+  });
+});
+
+describe('polling do resgate com intervalo crescente', () => {
+  const t0 = Date.parse('2026-11-15T12:00:00Z');
+  const generatedAt = new Date(t0).toISOString();
+  test('5 s nos 2 primeiros minutos, 15 s até 10 min, 30 s depois', () => {
+    expect(pollIntervalMs(undefined, t0)).toBe(5_000);
+    expect(pollIntervalMs(generatedAt, t0 + 60_000)).toBe(5_000);
+    expect(pollIntervalMs(generatedAt, t0 + 5 * 60_000)).toBe(15_000);
+    expect(pollIntervalMs(generatedAt, t0 + 12 * 60_000)).toBe(30_000);
   });
 });

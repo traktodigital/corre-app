@@ -16,11 +16,13 @@ create extension if not exists pgcrypto;
 create table tokens_carteirinha (token text primary key, associado_id uuid, expira_em timestamptz, criado_em timestamptz default now());
 create table associacoes (id uuid primary key, sigla text, ativa bool default true);
 create table usuarios (id uuid primary key, nome text, email text, cpf text, telefone text, foto_url text, placa text,
-  plano text default 'free', status text default 'ativo');
+  cidade text, uf text, tipo_veiculo text, plano text default 'free', status text default 'ativo');
 create table papeis_usuario (id serial primary key, usuario_id uuid, papel text, associacao_id uuid, parceiro_id uuid, contratante_id uuid);
-create table associados (id serial primary key, usuario_id uuid, associacao_id uuid, status text);
-create table solicitacoes_filiacao (id serial primary key, usuario_id uuid, associacao_id uuid, status text,
-  nome text, cpf text, telefone text, placa text);
+create table associados (id uuid primary key default gen_random_uuid(), usuario_id uuid, associacao_id uuid, status text,
+  numero_carteirinha text, criado_em timestamptz default now());
+create table solicitacoes_filiacao (id uuid primary key default gen_random_uuid(), usuario_id uuid, associacao_id uuid, status text,
+  nome text, cpf text, telefone text, placa text, cidade text, uf text, tipo_veiculo text, observacao text,
+  criado_em timestamptz default now());
 create table parceiros (id uuid primary key, plano text, status text default 'ativo');
 create table ofertas (id uuid primary key, parceiro_id uuid, status text default 'ativa', tipo text default 'desconto_fixo',
   exclusivo_associados bool default false, exclusivo_premium bool default false,

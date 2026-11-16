@@ -18,6 +18,11 @@ describe('validateMembershipRequest', () => {
     expect(validateMembershipRequest(ok)).toBeNull();
   });
 
+  test('nome de uma palavra só é aviso, não bloqueio', () => {
+    expect(validateMembershipRequest({ ...ok, name: 'Pelé' })).toBeNull();
+    expect(validateMembershipRequest({ ...ok, name: '  ' })).toMatch(/nome/);
+  });
+
   test('exige CPF válido', () => {
     expect(validateMembershipRequest({ ...ok, cpf: '111.111.111-11' })).toMatch(
       /CPF/,

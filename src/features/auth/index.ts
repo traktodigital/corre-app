@@ -2,6 +2,7 @@ export { AuthProvider, useSession } from './ui/AuthProvider';
 export type { SessionState } from './ui/AuthProvider';
 export { firstName } from './data/userMetadata';
 export { isValidPhone, maskPhone } from './domain/phone';
+export { nameWarning } from './domain/signUpRules';
 export type { Role, VehicleType } from './domain/types';
 export { ConfirmEmailScreen } from './ui/screens/ConfirmEmailScreen';
 export { LoginScreen } from './ui/screens/LoginScreen';

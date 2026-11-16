@@ -42,6 +42,9 @@ export function maskCpf(value: string) {
 }
 
 export function hideCpf(cpf: string | null | undefined) {
+  if (cpf?.includes('*')) {
+    return cpf;
+  }
   const d = onlyDigits(cpf ?? '');
   if (d.length !== 11) {
     return '—';

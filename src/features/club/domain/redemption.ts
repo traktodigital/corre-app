@@ -8,6 +8,20 @@ export function redemptionDeadline(generatedAt: string): number {
   return new Date(generatedAt).getTime() + VALIDITY_MS;
 }
 
+export function pollIntervalMs(
+  generatedAt: string | undefined,
+  now = Date.now(),
+): number {
+  if (!generatedAt) {
+    return 5_000;
+  }
+  const elapsed = now - new Date(generatedAt).getTime();
+  if (elapsed < 2 * 60_000) {
+    return 5_000;
+  }
+  return elapsed < 10 * 60_000 ? 15_000 : 30_000;
+}
+
 export function openRedemptionCutoff(now = Date.now()): string {
   return new Date(now - VALIDITY_MS).toISOString();
 }

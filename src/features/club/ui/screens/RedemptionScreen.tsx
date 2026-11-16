@@ -16,9 +16,11 @@ import { formatCurrency } from '../../../../shared/format';
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { palette, useTheme } from '../../../../shared/theme';
 import { fetchRedemption } from '../../data/clubRepository';
-import { REDEMPTION_VALIDITY_MINUTES, redemptionDeadline } from '../../domain';
-
-const POLL_INTERVAL_MS = 5000;
+import {
+  pollIntervalMs,
+  REDEMPTION_VALIDITY_MINUTES,
+  redemptionDeadline,
+} from '../../domain';
 
 function useSecondsLeft(generatedAt: string | undefined) {
   const [now, setNow] = useState(() => Date.now());
@@ -46,11 +48,15 @@ export function RedemptionScreen({
   const { colors, radius } = useTheme();
 
   const [finished, setFinished] = useState(false);
+  const [pollMs, setPollMs] = useState(pollIntervalMs(undefined));
   const redemption = useQuery(`redemption:${id}`, () => fetchRedemption(id), {
-    intervalMs: finished ? undefined : POLL_INTERVAL_MS,
+    intervalMs: finished ? undefined : pollMs,
   });
   const r = redemption.data;
   const secondsLeft = useSecondsLeft(r?.generatedAt);
+  useEffect(() => {
+    setPollMs(pollIntervalMs(r?.generatedAt));
+  }, [r?.generatedAt, secondsLeft]);
   useEffect(() => {
     if (r && (r.status !== 'generated' || secondsLeft === 0)) {
       setFinished(true);

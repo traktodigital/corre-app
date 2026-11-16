@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { hideCpf } from '../../../shared/format';
 import { env } from '../../../core/config/env';
 import { supabase } from '../../../core/supabase/client';
 import type {
@@ -137,7 +138,7 @@ function toCardRow(card: MembershipCard): CardRow {
     usuario: holder
       ? {
           nome: holder.name,
-          cpf: holder.cpf,
+          cpf: holder.cpf === null ? null : hideCpf(holder.cpf),
           foto_url: holder.photoUrl,
           tipo_veiculo: holder.vehicleType,
           placa: holder.plate,
@@ -302,7 +303,7 @@ export async function submitMembershipRequest(
     placa: input.plate.trim().toUpperCase() || null,
     aceite_estatuto: true,
   });
-  if (error) {
+  if (error && error.code !== '23505') {
     throw error;
   }
 }

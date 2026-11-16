@@ -28,6 +28,17 @@ anônimo bloqueado e exclusão de conta apagando tudo.
 
 Toda linha deve começar com `OK`. Qualquer `FALHA` é brecha.
 
+Atalho (mesmo comando do CI, `.github/workflows/ci.yml`), com o banco `corre` vazio:
+
+```sh
+PGHOST=localhost PGPORT=54329 PGDATABASE=corre ./rodar.sh   # espera 156 OK, 0 FALHA
+```
+
+`6-escala.sql` (9 checagens, parte 9): índices, job que expira código vencido e limpa
+token órfão, número da carteirinha pelo contador (inclusive depois de número criado pelo
+painel web), um pedido de filiação pendente por pessoa e limite de validação somado por
+parceiro.
+
 Cobertura (69 ataques + 7 checagens de backend): entregador se promover a
 admin, validar o próprio resgate, forjar código/valor/horário, apagar resgate,
 ler dados de outro, resgatar em nome de outro, toque duplo gerando 2 códigos,

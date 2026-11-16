@@ -8,8 +8,8 @@ export function validateMembershipRequest(
   if (!form.associationId) {
     return 'Escolha a associação.';
   }
-  if (form.name.trim().split(/\s+/).length < 2) {
-    return 'Escreve seu nome completo, por favor.';
+  if (!form.name.trim()) {
+    return 'Qual o seu nome?';
   }
   if (!isValidCpf(form.cpf)) {
     return 'CPF inválido. Confere os números.';

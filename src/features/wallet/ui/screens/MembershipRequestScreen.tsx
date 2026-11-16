@@ -16,7 +16,12 @@ import {
 import { maskCpf, onlyDigits } from '../../../../shared/format';
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { alpha, palette, useTheme } from '../../../../shared/theme';
-import { maskPhone, type VehicleType, useSession } from '../../../auth';
+import {
+  maskPhone,
+  nameWarning,
+  type VehicleType,
+  useSession,
+} from '../../../auth';
 import { fetchProfile } from '../../../profile';
 import {
   fetchActiveAssociations,
@@ -53,7 +58,7 @@ export function MembershipRequestScreen({
   const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
-  const [stateCode, setStateCode] = useState('GO');
+  const [stateCode, setStateCode] = useState('');
   const [vehicleType, setVehicleType] = useState<VehicleType>('moto');
   const [plate, setPlate] = useState('');
   const [acceptedBylaws, setAcceptedBylaws] = useState(false);
@@ -86,6 +91,10 @@ export function MembershipRequestScreen({
     const list = associationsQuery.data ?? [];
     if (!associationId && list.length > 0) {
       setAssociationId(list[0].id);
+    }
+    const selected = list.find(a => a.id === associationId);
+    if (selected?.state) {
+      setStateCode(v => v || selected.state || '');
     }
   }, [associationsQuery.data, associationId]);
 
@@ -205,6 +214,11 @@ export function MembershipRequestScreen({
           autoCapitalize="words"
           autoComplete="name"
         />
+        {nameWarning(name) ? (
+          <Text variant="caption" tone="muted">
+            {nameWarning(name)}
+          </Text>
+        ) : null}
         <Input
           label="CPF"
           placeholder="000.000.000-00"
