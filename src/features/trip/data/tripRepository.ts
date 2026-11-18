@@ -1,21 +1,26 @@
 import { supabase } from '../../../core/supabase/client';
 import type { LocalFile } from '../../../core/device/types';
 import { todayInBrasilia } from '../../../shared/date';
-import type {
-  DeliveryApp,
-  Fuel,
-  NewTrip,
-  OpenTrip,
-  Refuel,
-  TripClosing,
-  TripEarning,
-  TripSummary,
+import {
+  parseRoute,
+  type DeliveryApp,
+  type Fuel,
+  type NewTrip,
+  type OpenTrip,
+  type Refuel,
+  type RoutePoint,
+  type TripClosing,
+  type TripEarning,
+  type TripListItem,
+  type TripPeriod,
+  type TripSummary,
 } from '../domain';
 
 const BUCKET = 'jornada-fotos';
 const DAY_MS = 86_400_000;
 const UNIQUE_VIOLATION = '23505';
 const ALREADY_CLOSED = 'jornada ja encerrada';
+export const TRIP_PAGE_SIZE = 20;
 
 const FUEL_TO_DB: Record<Fuel, string> = {
   gasoline: 'gasolina',
@@ -254,6 +259,86 @@ export async function fetchTripSummary(tripId: string): Promise<TripSummary> {
     throw error;
   }
   return toSummary(data as SummaryRow);
+}
+
+export async function fetchTripPeriod(tripId: string): Promise<TripPeriod> {
+  const { data, error } = await supabase
+    .from('jornadas')
+    .select('iniciada_em, encerrada_em, trajeto_path')
+    .eq('id', tripId)
+    .single();
+  if (error) {
+    throw error;
+  }
+  const row = data as {
+    iniciada_em: string;
+    encerrada_em: string | null;
+    trajeto_path: string | null;
+  };
+  return {
+    startedAt: row.iniciada_em,
+    endedAt: row.encerrada_em,
+    routePath: row.trajeto_path,
+  };
+}
+
+export async function readRouteFile(path: string): Promise<RoutePoint[]> {
+  const response = await fetch(`file://${path}`);
+  return parseRoute(await response.text());
+}
+
+export async function downloadRoute(path: string): Promise<RoutePoint[]> {
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(path, 60);
+  if (error) {
+    throw error;
+  }
+  const response = await fetch(data.signedUrl);
+  return parseRoute(await response.text());
+}
+
+type TripListRow = {
+  id: string;
+  iniciada_em: string;
+  km_gps: number | null;
+  odometro_inicio: number | null;
+  odometro_fim: number | null;
+  jornada_ganhos: { app_id: string; valor: number | null }[] | null;
+};
+
+export async function listClosedTrips(
+  before?: string,
+): Promise<TripListItem[]> {
+  let query = supabase
+    .from('jornadas')
+    .select(
+      'id, iniciada_em, km_gps, odometro_inicio, odometro_fim, jornada_ganhos(app_id, valor)',
+    )
+    .eq('status', 'encerrada')
+    .order('iniciada_em', { ascending: false })
+    .limit(TRIP_PAGE_SIZE);
+  if (before) {
+    query = query.lt('iniciada_em', before);
+  }
+  const { data, error } = await query;
+  if (error) {
+    throw error;
+  }
+  return ((data ?? []) as TripListRow[]).map(row => {
+    const earnings = row.jornada_ganhos ?? [];
+    const odometerKm =
+      row.odometro_inicio !== null && row.odometro_fim !== null
+        ? row.odometro_fim - row.odometro_inicio
+        : 0;
+    return {
+      id: row.id,
+      startedAt: row.iniciada_em,
+      km: row.km_gps !== null ? Number(row.km_gps) : odometerKm,
+      earnings: earnings.reduce((sum, g) => sum + Number(g.valor ?? 0), 0),
+      appIds: earnings.map(g => g.app_id),
+    };
+  });
 }
 
 export async function fetchTodaySummary(): Promise<TripSummary> {

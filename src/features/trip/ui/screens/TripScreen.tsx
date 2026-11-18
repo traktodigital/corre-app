@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Bike, Fuel, MapPinOff, Square } from 'lucide-react-native';
+import { Bike, Fuel, MapPinOff, Route, Square } from 'lucide-react-native';
 import type { RootNav } from '../../../../app/navigation';
 import { openSettings } from '../../../../core/permissions';
 import { Screen } from '../../../../shared/layout';
@@ -199,6 +199,15 @@ export function TripScreen() {
           <DaySummary summary={today.data} appName={appName} />
         </View>
       ) : null}
+
+      <Button
+        title="Ver todas as jornadas"
+        variant="outline"
+        size="lg"
+        fullWidth
+        icon={<Route size={18} color={colors.foreground} />}
+        onPress={() => navigation.navigate('TripHistory')}
+      />
     </Screen>
   );
 }

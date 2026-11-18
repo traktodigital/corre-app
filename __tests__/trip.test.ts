@@ -1,8 +1,13 @@
 import {
+  appendPage,
+  drawRoute,
+  formatClock,
   formatDuration,
   formatKm,
+  groupByMonth,
   parseBrazilianNumber,
   parseOdometer,
+  parseRoute,
   trackerNeedsStart,
   validateEnd,
   validateRefuel,
@@ -96,5 +101,89 @@ describe('jornada: religar o GPS quando o serviço morreu', () => {
 
   it('não mexe quando o serviço já está contando a jornada certa', () => {
     expect(trackerNeedsStart('j1', { active: true, tripId: 'j1' })).toBe(false);
+  });
+});
+
+describe('jornada: trajeto no resumo', () => {
+  const csv =
+    '1763432400000,-16.686900,-49.264800,12\n' +
+    'lixo\n' +
+    '\n' +
+    '1763432405000,-16.687900,-49.264800,8\n' +
+    '1763432410000,-16.687900,-49.262800,9\n';
+
+  it('lê o CSV e ignora linhas ruins', () => {
+    expect(parseRoute(csv)).toEqual([
+      { lat: -16.6869, lng: -49.2648 },
+      { lat: -16.6879, lng: -49.2648 },
+      { lat: -16.6879, lng: -49.2628 },
+    ]);
+  });
+
+  it('desenha dentro da caixa, do início ao fim', () => {
+    const drawing = drawRoute(parseRoute(csv), 300, 200, 20)!;
+    expect(drawing.d.startsWith('M')).toBe(true);
+    expect(drawing.d.match(/L/g)).toHaveLength(2);
+    const [sx, sy] = drawing.start;
+    const [ex, ey] = drawing.end;
+    for (const v of [sx, ex]) {
+      expect(v).toBeGreaterThanOrEqual(20);
+      expect(v).toBeLessThanOrEqual(280);
+    }
+    for (const v of [sy, ey]) {
+      expect(v).toBeGreaterThanOrEqual(20);
+      expect(v).toBeLessThanOrEqual(180);
+    }
+    expect(sy).toBeLessThan(ey);
+    expect(ex).toBeGreaterThan(sx);
+  });
+
+  it('sem trajeto não desenha', () => {
+    expect(drawRoute([], 300, 200)).toBeNull();
+    expect(drawRoute([{ lat: 1, lng: 1 }], 300, 200)).toBeNull();
+    expect(
+      drawRoute(
+        [
+          { lat: 1, lng: 1 },
+          { lat: 1, lng: 1 },
+        ],
+        300,
+        200,
+      ),
+    ).toBeNull();
+  });
+
+  it('relógio da jornada', () => {
+    expect(formatClock(5.7)).toBe('5:42');
+    expect(formatClock(0.94)).toBe('0:56');
+  });
+});
+
+describe('jornada: histórico', () => {
+  it('agrupa por mês na ordem que veio, mais recente primeiro', () => {
+    const groups = groupByMonth([
+      { id: 'c', startedAt: '2026-11-18T15:00:00-03:00' },
+      { id: 'b', startedAt: '2026-11-02T15:00:00-03:00' },
+      { id: 'a', startedAt: '2026-10-30T15:00:00-03:00' },
+    ]);
+    expect(groups.map(g => g.items.map(i => i.id))).toEqual([
+      ['c', 'b'],
+      ['a'],
+    ]);
+    expect(groups[0].month.charAt(0)).toBe(
+      groups[0].month.charAt(0).toUpperCase(),
+    );
+  });
+});
+
+describe('jornada: páginas do histórico', () => {
+  it('junta a próxima página sem repetir jornada', () => {
+    const first = [{ id: 'a' }, { id: 'b' }];
+    expect(appendPage(first, [{ id: 'b' }, { id: 'c' }])).toEqual([
+      { id: 'a' },
+      { id: 'b' },
+      { id: 'c' },
+    ]);
+    expect(appendPage([], first)).toEqual(first);
   });
 });
