@@ -37,6 +37,11 @@ padronizar os nomes e garantir que o app **nunca trave se o usuário negar uma p
 - **`.gitignore`** passou a cobrir `src/core/config/env.ts` (sem isso, o arquivo com as
   chaves entraria no commit).
 - **`useSession`** é estável entre renders, o que dá menos re-renders.
+- **Android (18/11):** o app fechava quando o sistema recriava a `MainActivity` a partir de
+  estado salvo (mudança de fonte ou idioma, permissão revogada nas configurações, processo morto
+  em segundo plano): `Screen fragments should never be restored`. A `MainActivity` agora instala
+  a `RNScreensFragmentFactory` antes do `super.onCreate`, como manda o `react-native-screens`.
+  Validado no emulador mudando a fonte e com "não manter atividades". Entrou no AAB 8 (1.1.0).
 
 ## 4. De/para (para ler as ADRs antigas)
 
