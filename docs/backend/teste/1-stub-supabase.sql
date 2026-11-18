@@ -77,7 +77,7 @@ insert into ofertas (id, parceiro_id, preco_de, preco_por, status, validade_fim,
  ('00000000-0000-0000-0000-0000000000d5','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',null,false,null),
  ('00000000-0000-0000-0000-0000000000d6','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',null,false,null),
  ('00000000-0000-0000-0000-0000000000f2','00000000-0000-0000-0000-0000000000e2',null,null,'pausada',null,false,null),
- ('00000000-0000-0000-0000-0000000000f3','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',current_date - 1,false,null),
+ ('00000000-0000-0000-0000-0000000000f3','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',(now() at time zone 'America/Sao_Paulo')::date - 1,false,null),
  ('00000000-0000-0000-0000-0000000000f4','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',null,true,null),
  ('00000000-0000-0000-0000-0000000000f5','00000000-0000-0000-0000-0000000000e2',null,null,'ativa',null,false,1);
 -- 4 é um código VENCIDO de A na mesma oferta de 1: a migration precisa fechar
