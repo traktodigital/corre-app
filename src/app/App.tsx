@@ -46,6 +46,7 @@ import {
   RefuelScreen,
   StartTripScreen,
   TripScreen,
+  TripHistoryScreen,
   TripSummaryScreen,
 } from '../features/trip';
 import { MembershipRequestScreen, WalletScreen } from '../features/wallet';
@@ -161,10 +162,11 @@ function RootNavigator() {
             component={EndTripScreen}
             options={comHeader('Encerrar jornada')}
           />
+          <Stack.Screen name="TripSummary" component={TripSummaryScreen} />
           <Stack.Screen
-            name="TripSummary"
-            component={TripSummaryScreen}
-            options={comHeader('Resumo do dia')}
+            name="TripHistory"
+            component={TripHistoryScreen}
+            options={comHeader('Suas jornadas')}
           />
           <Stack.Screen
             name="Emergency"

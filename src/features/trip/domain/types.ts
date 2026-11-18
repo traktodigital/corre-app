@@ -44,6 +44,20 @@ export type TripClosing = {
   routePath: string | null;
 };
 
+export type TripPeriod = {
+  startedAt: string;
+  endedAt: string | null;
+  routePath: string | null;
+};
+
+export type TripListItem = {
+  id: string;
+  startedAt: string;
+  km: number;
+  earnings: number;
+  appIds: string[];
+};
+
 export type AppEarningSummary = {
   appId: string;
   amount: number | null;

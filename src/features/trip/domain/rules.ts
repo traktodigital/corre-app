@@ -125,6 +125,42 @@ export function formatDuration(ms: number): string {
     : `${minutes}min`;
 }
 
+export function appendPage<T extends { id: string }>(
+  current: T[],
+  page: T[],
+): T[] {
+  const seen = new Set(current.map(item => item.id));
+  return [...current, ...page.filter(item => !seen.has(item.id))];
+}
+
+export function groupByMonth<T extends { startedAt: string }>(
+  items: T[],
+): { month: string; items: T[] }[] {
+  const groups: { month: string; items: T[] }[] = [];
+  for (const item of items) {
+    const label = new Date(item.startedAt).toLocaleDateString('pt-BR', {
+      month: 'long',
+      year: 'numeric',
+    });
+    const month = label.charAt(0).toUpperCase() + label.slice(1);
+    const last = groups[groups.length - 1];
+    if (last?.month === month) {
+      last.items.push(item);
+    } else {
+      groups.push({ month, items: [item] });
+    }
+  }
+  return groups;
+}
+
+export function formatClock(hours: number): string {
+  const totalMinutes = Math.max(0, Math.round(hours * 60));
+  return `${Math.floor(totalMinutes / 60)}:${String(totalMinutes % 60).padStart(
+    2,
+    '0',
+  )}`;
+}
+
 export function trackerNeedsStart(
   tripId: string,
   tracker: { active: boolean; tripId: string } | null | undefined,

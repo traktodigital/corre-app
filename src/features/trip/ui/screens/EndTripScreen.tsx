@@ -119,7 +119,11 @@ export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
         routePath,
       });
       await locationTracker.stop();
-      navigation.replace('TripSummary', { tripId });
+      navigation.replace('TripSummary', {
+        tripId,
+        routeFile:
+          tracker?.tripId === tripId ? tracker.file ?? undefined : undefined,
+      });
     } catch {
       setError(
         'Não deu pra encerrar. Confere a internet e tenta de novo — o GPS continua contando.',

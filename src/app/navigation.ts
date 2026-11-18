@@ -24,7 +24,8 @@ export type RootStackParamList = {
   StartTrip: undefined;
   Refuel: { tripId: string };
   EndTrip: { tripId: string };
-  TripSummary: { tripId: string };
+  TripSummary: { tripId: string; routeFile?: string };
+  TripHistory: undefined;
 
   Emergency: undefined;
   EmergencyContact: undefined;
