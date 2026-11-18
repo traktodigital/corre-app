@@ -107,6 +107,8 @@ O fluxo **por escrito** já existe. Falta o **teste ponta a ponta** com a 3B par
 | Banco | `partes/11-rota-3b.sql`. Teste: `teste/8-rota-3b.sql` (26 checagens, com a flag desligada e ligada). Conferência: `aplicar/9-conferencia-parte-11.sql` |
 | Validado no emulador | Com a flag forçada só no código local: card, as 4 telas, a logo e a recusa sem consentimento registrado. Com a flag real (desligada): o card não aparece |
 
+**No dia de ligar, atualizar também a "Segurança dos dados" no Play Console:** nome e telefone passam a ser **compartilhados** com terceiro (3B, relatório mensal). As respostas do formulário não entram, porque o próprio entregador envia pelo WhatsApp dele.
+
 **Para ligar a rota (nada disso exige versão nova do app):** (1) teste ponta a ponta com a 3B; (2) texto final do jurídico, publicado com `insert into public.textos_consentimento (finalidade, versao, texto) values ('3b_indenizacao', '3b-AAAA-MM-DD', '<texto>');`; (3) confirmação por escrito da autorização dos depoimentos. Depois, o `update` da flag acima.
 
 ## 4. Pendências

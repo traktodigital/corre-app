@@ -218,6 +218,7 @@ class TripTrackerService : Service(), LocationListener {
     const val K_LNG = "lng"
     const val K_TIME = "t"
     const val K_MOCKED = "simulado"
+    const val K_CLOSED = "encerrada"
 
     private const val PREFS_NAME = "corre_jornada"
 

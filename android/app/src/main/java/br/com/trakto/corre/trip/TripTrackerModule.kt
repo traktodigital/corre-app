@@ -28,6 +28,10 @@ class TripTrackerModule(private val context: ReactApplicationContext) : ReactCon
     var freshTrip = false
     try {
       val prefs = TripTrackerService.prefs(context)
+      if (prefs.getString(TripTrackerService.K_CLOSED, null) == tripId) {
+        promise.reject(ERROR_CLOSED, "Jornada já encerrada.")
+        return
+      }
       freshTrip = prefs.getString(TripTrackerService.K_ID, null) != tripId
       if (freshTrip) {
         prefs.edit().clear()
@@ -91,11 +95,22 @@ class TripTrackerModule(private val context: ReactApplicationContext) : ReactCon
   @ReactMethod
   fun stop(promise: Promise) {
     val state = readState()
+    val closedId = try {
+      TripTrackerService.prefs(context).getString(TripTrackerService.K_ID, null)
+    } catch (e: Exception) {
+      null
+    }
     try {
       context.stopService(Intent(context, TripTrackerService::class.java))
     } catch (e: Exception) {
     }
     clearPrefs()
+    if (closedId != null) {
+      try {
+        TripTrackerService.prefs(context).edit().putString(TripTrackerService.K_CLOSED, closedId).apply()
+      } catch (e: Exception) {
+      }
+    }
     promise.resolve(state)
   }
 
@@ -145,5 +160,6 @@ class TripTrackerModule(private val context: ReactApplicationContext) : ReactCon
     const val ERROR_NOT_ALLOWED = "foreground_not_allowed"
     const val ERROR_SECURITY = "security_error"
     const val ERROR_START = "start_failed"
+    const val ERROR_CLOSED = "trip_closed"
   }
 }

@@ -90,6 +90,7 @@ struct TripState: Codable {
 @objc(TripTracker)
 final class TripTracker: NSObject, CLLocationManagerDelegate {
   private static let storageKey = "corre.jornada"
+  private static let closedKey = "corre.jornada.encerrada"
   private static let activityStaleAfter: TimeInterval = 15 * 60
   private static let activityMaxAge: TimeInterval = 7.5 * 3600
   private static let activityEveryKm = 0.5
@@ -143,6 +144,10 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
       reject("permission_denied", "Permissão de localização não concedida.", nil)
       return
     }
+    if UserDefaults.standard.string(forKey: Self.closedKey) == tripId {
+      reject("trip_closed", "Jornada já encerrada.", nil)
+      return
+    }
     if state?.tripId != tripId {
       state = TripState(tripId: tripId, startedAt: Date())
       save()
@@ -188,6 +193,9 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
       manager.allowsBackgroundLocationUpdates = false
     }
     endActivity()
+    if let closedId = state?.tripId {
+      UserDefaults.standard.set(closedId, forKey: Self.closedKey)
+    }
     state = nil
     UserDefaults.standard.removeObject(forKey: Self.storageKey)
     resolve(result)
