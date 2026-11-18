@@ -286,7 +286,9 @@ Esforço: P = horas, M = dias.
 | M15 | ⏳ Crash reporting (falta escolher ferramenta) | — |
 | M16 | ✅ Limite de validação também por parceiro (10/min, 40/h) + índice único de filiação pendente; o app trata o duplicado como "já enviado" | parte 9, `walletRepository.ts` |
 
-**Aplicar no Supabase**, nesta ordem: parte 8 (se ainda não foi) → **habilitar `pg_cron`** →
-parte 9. A parte 9 pode ser reaplicada sem efeito colateral. Ela fecha pedidos de filiação
-pendentes duplicados (mantém o mais antigo, os outros viram `cancelada`) antes de criar o
-índice único. **Confirmar que o enum de status aceita `cancelada`.**
+**Aplicado em produção (Lovable Cloud) em 17/11/2026**, nesta ordem: checagem
+(`aplicar/1-checagem.sql`) → `pg_cron` → parte 8 → parte 9, cada parte em `begin … commit`
+pelo SQL editor do Lovable. O enum `status_solicitacao` já aceitava `cancelada` e não havia
+filiação pendente duplicada. A parte 9 pode ser reaplicada sem efeito colateral. O Lovable
+Cloud não dá acesso direto ao banco: toda mudança de schema passa pelo SQL editor, com os
+arquivos de `docs/backend/aplicar/`.

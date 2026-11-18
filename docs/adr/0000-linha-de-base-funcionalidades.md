@@ -93,7 +93,7 @@ web, fora deste repositório e não auditado aqui) · 🚧 planejado
 
 | Item | Status |
 |---|---|
-| Banco da **Jornada do dia** (`partes/8-jornada.sql`): jornadas, ganhos por app, abastecimentos, resumo calculado, fotos no Storage, exclusão de conta | 🗄️ Testado (35/35). **Falta aplicar no Supabase** e construir as telas |
+| Banco da **Jornada do dia** (`partes/8-jornada.sql`): jornadas, ganhos por app, abastecimentos, resumo calculado, fotos no Storage, exclusão de conta | ✅ Aplicado em produção (17/11/2026); telas na aba Entregas |
 | ADRs 0001–0005 | Propostas e decisões registradas |
 
 ## 5. O que ainda não existe
