@@ -3,6 +3,7 @@ import {
   formatKm,
   parseBrazilianNumber,
   parseOdometer,
+  trackerNeedsStart,
   validateEnd,
   validateRefuel,
   validateStart,
@@ -83,5 +84,17 @@ describe('jornada: formatação', () => {
     expect(formatKm(null)).toBe('0,0 km');
     expect(formatDuration(72 * 60_000)).toBe('1h 12min');
     expect(formatDuration(5 * 60_000)).toBe('5min');
+  });
+});
+
+describe('jornada: religar o GPS quando o serviço morreu', () => {
+  it('liga quando não há estado, está parado ou é de outra jornada', () => {
+    expect(trackerNeedsStart('j1', null)).toBe(true);
+    expect(trackerNeedsStart('j1', { active: false, tripId: 'j1' })).toBe(true);
+    expect(trackerNeedsStart('j1', { active: true, tripId: 'j0' })).toBe(true);
+  });
+
+  it('não mexe quando o serviço já está contando a jornada certa', () => {
+    expect(trackerNeedsStart('j1', { active: true, tripId: 'j1' })).toBe(false);
   });
 });

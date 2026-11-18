@@ -21,6 +21,7 @@ class DistanceAccumulator {
     private set
 
   private var hasLast = false
+  private var jumps = 0
 
   fun add(lat: Double, lng: Double, accuracyM: Float, timeMs: Long): Boolean {
     if (accuracyM > MAX_ACCURACY_M) return false
@@ -32,7 +33,15 @@ class DistanceAccumulator {
     if (dt <= 0) return false
     val d = distanceM(lastLat, lastLng, lat, lng)
     if (d < MIN_DISPLACEMENT_M) return false
-    if (d / dt > MAX_SPEED_MS) return false
+    if (d / dt > MAX_SPEED_MS) {
+      jumps++
+      if (jumps < REANCHOR_AFTER_JUMPS) return false
+      jumps = 0
+      gaps++
+      mark(lat, lng, timeMs)
+      return true
+    }
+    jumps = 0
     if (dt > GAP_S) gaps++
     meters += d
     mark(lat, lng, timeMs)
@@ -43,6 +52,7 @@ class DistanceAccumulator {
     this.meters = meters
     this.points = points
     this.gaps = gaps
+    jumps = 0
     hasLast = points > 0
     lastLat = if (hasLast) lat else 0.0
     lastLng = if (hasLast) lng else 0.0
@@ -62,6 +72,7 @@ class DistanceAccumulator {
     const val MIN_DISPLACEMENT_M = 10.0
     const val MAX_SPEED_MS = 120 / 3.6
     const val GAP_S = 120.0
+    const val REANCHOR_AFTER_JUMPS = 3
 
     private const val EARTH_RADIUS_M = 6_371_000.0
 

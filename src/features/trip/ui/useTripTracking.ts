@@ -8,6 +8,7 @@ import {
   type PermissionStatus,
 } from '../../../core/permissions';
 import { useQuery } from '../../../shared/hooks/useQuery';
+import { trackerNeedsStart } from '../domain';
 import { tripQueryKeys } from './queryKeys';
 
 export type TrackingIssue = 'stopped' | 'denied' | 'blocked' | 'unavailable';
@@ -75,7 +76,7 @@ export function useTripTracking(tripId: string | null) {
     if (
       !tripId ||
       tracker.loading ||
-      tracker.data !== null ||
+      !trackerNeedsStart(tripId, tracker.data) ||
       resumedFor.current === tripId
     ) {
       return;
@@ -111,7 +112,10 @@ export function useTripTracking(tripId: string | null) {
   return {
     state: tracker.data,
     issue,
-    stopped: issue !== null || tracker.data === null,
+    stopped:
+      issue !== null ||
+      (tracker.data !== undefined &&
+        trackerNeedsStart(tripId ?? '', tracker.data)),
     turnOn,
     reload,
   };

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ClipboardCheck } from 'lucide-react-native';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
@@ -10,6 +10,7 @@ import {
   InlineError,
   ListSkeleton,
   Text,
+  useDialog,
 } from '../../../../shared/ui';
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { useSession } from '../../../auth';
@@ -28,6 +29,7 @@ import {
 import { PendingRequestCard } from '../components/PendingRequestCard';
 
 export function MembershipRequestsAdminScreen({}: ScreenProps<'MembershipRequestsAdmin'>) {
+  const dialog = useDialog();
   const { user, managedAssociationIds } = useSession();
   const [associationId, setAssociationId] = useState('');
   const [actingId, setActingId] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export function MembershipRequestsAdminScreen({}: ScreenProps<'MembershipRequest
   }
 
   function confirmApproval(request: PendingMembershipRequest) {
-    Alert.alert(
+    dialog(
       'Aprovar filiação?',
       `A aprovação cria o vínculo de ${request.name} com a associação e libera a carteirinha digital.`,
       [

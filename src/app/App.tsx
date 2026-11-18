@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
+  createNavigationContainerRef,
   DarkTheme,
   NavigationContainer,
   Theme as NavTheme,
@@ -11,6 +12,12 @@ import {
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
 import { AppShell, IntroSplash, TabKey } from '../shared/layout';
+import {
+  AccidentConsentScreen,
+  AccidentFormScreen,
+  AccidentScreen,
+  ThreeBScreen,
+} from '../features/accident';
 import { MembershipRequestsAdminScreen } from '../features/admin';
 import {
   AuthProvider,
@@ -27,6 +34,11 @@ import {
   RedemptionHistoryScreen,
   RedemptionScreen,
 } from '../features/club';
+import {
+  EmergencyButton,
+  EmergencyContactScreen,
+  EmergencyScreen,
+} from '../features/emergency';
 import { HomeScreen } from '../features/home';
 import { EditProfileScreen, ProfileScreen } from '../features/profile';
 import {
@@ -38,9 +50,11 @@ import {
 } from '../features/trip';
 import { MembershipRequestScreen, WalletScreen } from '../features/wallet';
 import { darkColors, ThemeProvider } from '../shared/theme';
+import { DialogProvider } from '../shared/ui';
 import type { RootStackParamList } from './navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 const navTheme: NavTheme = {
   ...DarkTheme,
@@ -152,6 +166,36 @@ function RootNavigator() {
             component={TripSummaryScreen}
             options={comHeader('Resumo do dia')}
           />
+          <Stack.Screen
+            name="Emergency"
+            component={EmergencyScreen}
+            options={comHeader('Emergência')}
+          />
+          <Stack.Screen
+            name="EmergencyContact"
+            component={EmergencyContactScreen}
+            options={comHeader('Contato de emergência')}
+          />
+          <Stack.Screen
+            name="Accident"
+            component={AccidentScreen}
+            options={comHeader('Sofri acidente')}
+          />
+          <Stack.Screen
+            name="AccidentForm"
+            component={AccidentFormScreen}
+            options={comHeader('Saber meus direitos')}
+          />
+          <Stack.Screen
+            name="AccidentConsent"
+            component={AccidentConsentScreen}
+            options={comHeader('Análise gratuita')}
+          />
+          <Stack.Screen
+            name="ThreeB"
+            component={ThreeBScreen}
+            options={comHeader('3B Indenizações')}
+          />
         </>
       ) : (
         <>
@@ -166,17 +210,35 @@ function RootNavigator() {
 }
 
 function Root() {
-  const { loading } = useSession();
+  const { loading, session, isGuest } = useSession();
   const [introAcabou, setIntroAcabou] = useState(false);
   const hideIntro = useCallback(() => setIntroAcabou(true), []);
+  const [routeName, setRouteName] = useState<string>();
+  const syncRoute = useCallback(
+    () => setRouteName(navigationRef.getCurrentRoute()?.name),
+    [],
+  );
+  const openEmergency = useCallback(() => {
+    if (navigationRef.isReady()) {
+      navigationRef.navigate('Emergency');
+    }
+  }, []);
 
   return (
     <>
       {loading ? null : (
-        <NavigationContainer theme={navTheme}>
+        <NavigationContainer
+          ref={navigationRef}
+          theme={navTheme}
+          onReady={syncRoute}
+          onStateChange={syncRoute}
+        >
           <RootNavigator />
         </NavigationContainer>
       )}
+      {!loading && (session || isGuest) ? (
+        <EmergencyButton routeName={routeName} onTrigger={openEmergency} />
+      ) : null}
       {introAcabou ? null : <IntroSplash onFinish={hideIntro} />}
     </>
   );
@@ -186,10 +248,12 @@ function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider mode="dark">
-        <AuthProvider>
-          <StatusBar barStyle="light-content" />
-          <Root />
-        </AuthProvider>
+        <DialogProvider>
+          <AuthProvider>
+            <StatusBar barStyle="light-content" />
+            <Root />
+          </AuthProvider>
+        </DialogProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

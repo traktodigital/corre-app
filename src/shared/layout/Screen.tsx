@@ -83,6 +83,6 @@ export function Screen({
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scroll: { paddingTop: 20, paddingBottom: 32 },
+  scroll: { paddingTop: 20, paddingBottom: 104 },
   content: { width: '100%', alignSelf: 'center' },
 });

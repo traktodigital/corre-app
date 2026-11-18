@@ -17,6 +17,7 @@ export type TripTrackerNativeModule = {
   start: (tripId: string) => Promise<void>;
   getState: () => Promise<NativeTrackerState | null>;
   stop: () => Promise<NativeTrackerState | null>;
+  getLastLocation?: () => Promise<unknown>;
 };
 
 export function getTripTrackerModule(): TripTrackerNativeModule | null {

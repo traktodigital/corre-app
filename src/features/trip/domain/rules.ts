@@ -124,3 +124,10 @@ export function formatDuration(ms: number): string {
     ? `${hours}h ${String(minutes).padStart(2, '0')}min`
     : `${minutes}min`;
 }
+
+export function trackerNeedsStart(
+  tripId: string,
+  tracker: { active: boolean; tripId: string } | null | undefined,
+): boolean {
+  return !tracker || !tracker.active || tracker.tripId !== tripId;
+}

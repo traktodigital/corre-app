@@ -41,8 +41,10 @@ export function Chip({
 
 const styles = StyleSheet.create({
   base: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
     alignItems: 'center',
+    paddingHorizontal: 14,
     borderWidth: 1,
     paddingVertical: 12,
   },

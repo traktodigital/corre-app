@@ -57,4 +57,17 @@ class DistanceAccumulatorTest {
     assertEquals(1, a.points)
     assertEquals(0, a.gaps)
   }
+
+  @Test
+  fun reanchorsAfterBadFirstFixWithoutCountingTheJump() {
+    val a = DistanceAccumulator()
+    assertTrue(a.add(37.42, -122.08, 5f, 0))
+    assertFalse(a.add(lat0, lng0, 5f, 6_000))
+    assertFalse(a.add(lat0 - 0.001, lng0, 5f, 12_000))
+    assertTrue("third jump in a row: the anchor was wrong", a.add(lat0 - 0.002, lng0, 5f, 18_000))
+    assertEquals(0.0, a.meters, 0.0)
+    assertEquals(1, a.gaps)
+    for (i in 3..12) assertTrue(a.add(lat0 - i * 0.001, lng0, 5f, 18_000L + (i - 2) * 6_000L))
+    assertEquals(1.11, a.meters / 1000, 0.01)
+  }
 }

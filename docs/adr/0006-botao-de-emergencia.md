@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Proposto. Construção começa agora (decisão do Léo). **A rota da 3B fica bloqueada** até o fluxo deles estar fechado por escrito e testado |
+| **Status** | **v1 entregue em 17/11/2026** (§5): SOS em todas as telas, 192/193, contato de emergência e registro. Ficam para depois: link ao vivo (D4), SMS pelo servidor (D5) e **a rota da 3B, bloqueada** até o teste ponta a ponta |
 | **Data** | 2026-11-15 |
 | **Fonte** | `CORRE_Rota_Copiloto_Ligeirin_DiogoDev` §5.1 |
 
@@ -80,6 +80,34 @@ O fluxo **por escrito** já existe. Falta o **teste ponta a ponta** com a 3B par
 - As respostas do formulário **não** ficam visíveis para o Ligeirin (escopo, ADR-0005 §6.4).
 - **Depoimentos com nome de pessoas reais:** a 3B garante que tem a autorização delas (pedir
   confirmação por escrito).
+
+## 5. O que a v1 entregou (17/11/2026)
+
+| Item | Como ficou |
+|---|---|
+| D1, D2 | `EmergencyButton` fora do navegador (o `App` passa a rota atual pelo `navigationRef`), em todas as telas logadas, menos nas próprias telas de emergência e com o teclado aberto. Segurar 3 s com anel de progresso (SVG) e vibração; soltar antes cancela. O leitor de tela aciona por ação de acessibilidade |
+| D3 | 192 e 193 abrem o discador (`tel:`), sem `CALL_PHONE`. Validado no emulador: abre com o número, não liga |
+| D5 (provisório) | **Sem provedor de SMS ainda**, o aviso sai do **próprio celular** do entregador: abre WhatsApp (`wa.me`) ou SMS com a mensagem pronta (nome, hora de Brasília e link do Maps). Ele só toca em enviar. Quando o provedor existir, o servidor passa a enviar sozinho (D5 original) |
+| D4 (parcial) | A localização vai **uma vez** no aviso (última posição conhecida, `TripTracker.getLastLocation` no Android e iOS). O link ao vivo continua pendente |
+| D6 | Uma tabela append-only `emergencia_eventos` (`acionou`, `ligou_192`, `ligou_193`, `avisou_contato`, `encerrou`), agrupada por `emergencia_id`, que nasce no `acionou`. O app registra **sem travar**: sem internet, o fluxo segue e o registro é perdido |
+| D7 | `contatos_emergencia` (um por entregador), RLS só do dono, editado em Perfil → Contato de emergência |
+| D9 | **Não precisou:** o app nunca liga nem envia sozinho, então testar não aciona o socorro de verdade |
+| Banco | `partes/10-emergencia.sql` (redefine `corre_anonimizar_dados`: a exclusão de conta apaga contato e eventos). Teste: `teste/7-emergencia.sql` (22 checagens) |
+
+### 5b. Rota da 3B construída atrás da flag (D8), desligada
+
+| Item | Como ficou |
+|---|---|
+| Flag | `app_flags` (`rota_3b`, nasce **desligada**). Só o admin liga, no SQL editor: `update public.app_flags set ligada = true, atualizado_em = now() where chave = 'rota_3b';`. O app lê ao abrir a tela de emergência. **Sem versão nova na loja** |
+| Trava no banco | Com a flag desligada, o banco **recusa** consentimento e lead da 3B, mesmo com o app alterado. Revogar é sempre permitido |
+| Telas | Card "Sofri acidente" na tela do SOS (só com a flag) → **Sofri acidente** (193/192 + "Saber meus direitos") → **formulário** (nada obrigatório; apps Uber/99/iFood/Outro, como pediu a 3B, e não o catálogo inteiro) → **consentimento** ("Concordo e continuar" / "Cancelar") → **WhatsApp da 3B** com a mensagem no modelo deles, horário, endereço e "ligar" (ligação normal). Página **3B Indenizações** com a logo (cartão branco, para manter as cores), descrição, depoimentos, endereço e redes |
+| Consentimento | O **texto fica no banco** (`textos_consentimento`, versionado, com histórico) e o app só exibe: o texto do jurídico entra **sem versão nova na loja**. `consentimentos` é append-only (`aceitou`/`revogou`), e **o banco grava a versão vigente**, não a que o app diz. Texto atual **provisório** (`3b-2026-11-17-provisorio`), com "Trakto Digital" no lugar de "Trackto". Sem o registro do consentimento, o app **não abre** o WhatsApp. Revogar fica em **Perfil** ("Parar de compartilhar meus dados com a 3B"), só para quem consentiu |
+| Minimização | As respostas do formulário (data, lesão, app) **não vão para o banco**: só para a mensagem que o próprio entregador envia. O CPF só vai se ele marcar (começa em "Não") |
+| Relatório do dia 10 | `leads_parceiros` (1 linha por toque em "Abrir WhatsApp da 3B", com a versão do consentimento). Export: `aplicar/8-relatorio-leads-3b.sql` (mês anterior: data, nome e telefone, só de quem **segue** consentindo) |
+| Banco | `partes/11-rota-3b.sql`. Teste: `teste/8-rota-3b.sql` (26 checagens, com a flag desligada e ligada). Conferência: `aplicar/9-conferencia-parte-11.sql` |
+| Validado no emulador | Com a flag forçada só no código local: card, as 4 telas, a logo e a recusa sem consentimento registrado. Com a flag real (desligada): o card não aparece |
+
+**Para ligar a rota (nada disso exige versão nova do app):** (1) teste ponta a ponta com a 3B; (2) texto final do jurídico, publicado com `insert into public.textos_consentimento (finalidade, versao, texto) values ('3b_indenizacao', '3b-AAAA-MM-DD', '<texto>');`; (3) confirmação por escrito da autorização dos depoimentos. Depois, o `update` da flag acima.
 
 ## 4. Pendências
 

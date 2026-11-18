@@ -1,9 +1,12 @@
 package br.com.trakto.corre.trip
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ForegroundServiceStartNotAllowedException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -58,6 +61,33 @@ class TripTrackerModule(private val context: ReactApplicationContext) : ReactCon
     promise.resolve(readState())
   }
 
+  @SuppressLint("MissingPermission")
+  @ReactMethod
+  fun getLastLocation(promise: Promise) {
+    if (!hasLocationPermission()) {
+      promise.resolve(null)
+      return
+    }
+    try {
+      val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+      val best = manager.getProviders(true)
+        .mapNotNull { provider -> manager.getLastKnownLocation(provider) }
+        .maxByOrNull { location -> location.time }
+      promise.resolve(
+        best?.let { location ->
+          Arguments.createMap().apply {
+            putDouble("lat", location.latitude)
+            putDouble("lng", location.longitude)
+            putDouble("accuracy", if (location.hasAccuracy()) location.accuracy.toDouble() else -1.0)
+            putDouble("time", location.time.toDouble())
+          }
+        },
+      )
+    } catch (e: Exception) {
+      promise.resolve(null)
+    }
+  }
+
   @ReactMethod
   fun stop(promise: Promise) {
     val state = readState()
@@ -95,7 +125,7 @@ class TripTrackerModule(private val context: ReactApplicationContext) : ReactCon
         null
       } else {
         Arguments.createMap().apply {
-          putBoolean("active", true)
+          putBoolean("active", TripTrackerService.running)
           putString("tripId", id)
           putDouble("km", prefs.getFloat(TripTrackerService.K_METERS, 0f) / 1000.0)
           putInt("points", prefs.getInt(TripTrackerService.K_POINTS, 0))

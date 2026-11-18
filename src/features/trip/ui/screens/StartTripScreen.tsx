@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { ScreenProps } from '../../../../app/navigation';
 import * as locationTracker from '../../../../core/device/location';
 import type { LocalFile } from '../../../../core/device/types';
@@ -8,7 +8,14 @@ import {
   type PermissionStatus,
 } from '../../../../core/permissions';
 import { Screen } from '../../../../shared/layout';
-import { Button, Chip, InlineError, Input, Text } from '../../../../shared/ui';
+import {
+  Button,
+  Chip,
+  InlineError,
+  Input,
+  Text,
+  useDialog,
+} from '../../../../shared/ui';
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { useSession } from '../../../auth';
 import {
@@ -42,6 +49,7 @@ const NO_LOCATION_MESSAGE: Record<
 };
 
 export function StartTripScreen({ navigation }: ScreenProps<'StartTrip'>) {
+  const dialog = useDialog();
   const { user } = useSession();
   const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
   const [selectedApps, setSelectedApps] = useState<string[]>([]);
@@ -105,16 +113,12 @@ export function StartTripScreen({ navigation }: ScreenProps<'StartTrip'>) {
     if (status === 'granted') {
       return open(true);
     }
-    Alert.alert(
-      'Sem localização, sem km automático',
-      NO_LOCATION_MESSAGE[status],
-      [
-        ...(status === 'blocked'
-          ? [{ text: 'Abrir ajustes', onPress: openSettings }]
-          : []),
-        { text: 'Seguir sem GPS', onPress: () => open(false) },
-      ],
-    );
+    dialog('Sem localização, sem km automático', NO_LOCATION_MESSAGE[status], [
+      ...(status === 'blocked'
+        ? [{ text: 'Abrir ajustes', onPress: openSettings }]
+        : []),
+      { text: 'Seguir sem GPS', onPress: () => open(false) },
+    ]);
   }
 
   return (
