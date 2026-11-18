@@ -1,4 +1,4 @@
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   ClipboardCheck,
@@ -7,6 +7,7 @@ import {
   LogOut,
   Pencil,
   ShieldCheck,
+  Siren,
   Trash2,
   User,
 } from 'lucide-react-native';
@@ -20,6 +21,7 @@ import {
   IconBox,
   ListSkeleton,
   Text,
+  useDialog,
 } from '../../../../shared/ui';
 import {
   formatCurrency,
@@ -29,6 +31,7 @@ import {
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { useTheme } from '../../../../shared/theme';
 import { firstName, useSession } from '../../../auth';
+import { ThreeBConsentAction } from '../../../accident';
 import { clearCardCache } from '../../../wallet';
 import { fetchSavings } from '../../../club';
 import {
@@ -44,6 +47,7 @@ import {
 } from '../components/ProfileDetails';
 
 export function ProfileScreen() {
+  const dialog = useDialog();
   const { colors } = useTheme();
   const navigation = useNavigation<RootNav>();
   const { user, signOut, leaveGuestMode, managedAssociationIds } = useSession();
@@ -84,7 +88,7 @@ export function ProfileScreen() {
     try {
       await deleteMyAccount();
     } catch {
-      Alert.alert(
+      dialog(
         'Não deu pra excluir',
         'Confira sua conexão e tente de novo. Se continuar, fale com o suporte.',
       );
@@ -94,7 +98,7 @@ export function ProfileScreen() {
   }
 
   function confirmDeleteAccount() {
-    Alert.alert(
+    dialog(
       'Excluir sua conta?',
       'Seus dados pessoais são apagados, a carteirinha é cancelada e você não consegue mais entrar com esta conta. Não dá pra desfazer.',
       [
@@ -169,6 +173,11 @@ export function ProfileScreen() {
           onPress={() => navigation.navigate('EditProfile')}
         />
         <ProfileAction
+          icon={Siren}
+          label="Contato de emergência"
+          onPress={() => navigation.navigate('EmergencyContact')}
+        />
+        <ProfileAction
           icon={History}
           label="Histórico de resgates"
           onPress={() => navigation.navigate('RedemptionHistory')}
@@ -178,6 +187,7 @@ export function ProfileScreen() {
           label="Política de privacidade"
           onPress={() => Linking.openURL(privacyPolicyUrl())}
         />
+        <ThreeBConsentAction />
         <ProfileAction
           icon={Trash2}
           label="Excluir minha conta"

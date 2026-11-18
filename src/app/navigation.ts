@@ -2,6 +2,7 @@ import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+import type { AccidentReport } from '../features/accident';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -24,6 +25,14 @@ export type RootStackParamList = {
   Refuel: { tripId: string };
   EndTrip: { tripId: string };
   TripSummary: { tripId: string };
+
+  Emergency: undefined;
+  EmergencyContact: undefined;
+
+  Accident: undefined;
+  AccidentForm: undefined;
+  AccidentConsent: { report: AccidentReport };
+  ThreeB: undefined;
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> =

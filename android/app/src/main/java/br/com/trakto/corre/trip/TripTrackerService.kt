@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Looper
+import br.com.trakto.corre.R
 import java.io.File
 import java.util.Locale
 
@@ -48,6 +49,7 @@ class TripTrackerService : Service(), LocationListener {
       leave()
       return START_NOT_STICKY
     }
+    running = true
     return START_STICKY
   }
 
@@ -75,6 +77,7 @@ class TripTrackerService : Service(), LocationListener {
   override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 
   override fun onDestroy() {
+    running = false
     try {
       locationManager?.removeUpdates(this)
     } catch (e: Exception) {
@@ -175,7 +178,8 @@ class TripTrackerService : Service(), LocationListener {
     val km = String.format(Locale.forLanguageTag("pt-BR"), "%.1f km", accumulator.meters / 1000)
     @Suppress("DEPRECATION")
     val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(this, CHANNEL_ID) else Notification.Builder(this)
-    builder.setSmallIcon(android.R.drawable.ic_menu_mylocation)
+    builder.setSmallIcon(R.drawable.ic_stat_corre)
+      .setColor(0xFF109150.toInt())
       .setContentTitle("Jornada em andamento · $km")
       .setContentText("Pode trocar de app. Só não feche o CORRE.")
       .setOngoing(true)
@@ -216,6 +220,10 @@ class TripTrackerService : Service(), LocationListener {
     const val K_MOCKED = "simulado"
 
     private const val PREFS_NAME = "corre_jornada"
+
+    @Volatile
+    var running = false
+      private set
 
     fun prefs(context: Context): SharedPreferences =
       context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

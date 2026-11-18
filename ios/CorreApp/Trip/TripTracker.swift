@@ -8,6 +8,7 @@ struct DistanceAccumulator: Codable {
   static let minDisplacementM = 10.0
   static let maxSpeedMs = 120 / 3.6
   static let gapS = 120.0
+  static let reanchorAfterJumps = 3
 
   var meters = 0.0
   var points = 0
@@ -16,6 +17,7 @@ struct DistanceAccumulator: Codable {
   var lastLng = 0.0
   var lastTime = 0.0
   var hasLast = false
+  var jumps = 0
 
   enum CodingKeys: String, CodingKey {
     case meters = "metros"
@@ -37,7 +39,15 @@ struct DistanceAccumulator: Codable {
     if dt <= 0 { return false }
     let d = Self.distanceM(lastLat, lastLng, lat, lng)
     if d < Self.minDisplacementM { return false }
-    if d / dt > Self.maxSpeedMs { return false }
+    if d / dt > Self.maxSpeedMs {
+      jumps += 1
+      if jumps < Self.reanchorAfterJumps { return false }
+      jumps = 0
+      gaps += 1
+      mark(lat, lng, time)
+      return true
+    }
+    jumps = 0
     if dt > Self.gapS { gaps += 1 }
     meters += d
     mark(lat, lng, time)
@@ -87,6 +97,7 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
 
   private let manager = CLLocationManager()
   private var state: TripState?
+  private var updating = false
   private var pendingPermission: [(Any?) -> Void] = []
   private var lastActivityUpdate = Date.distantPast
   private var activityKm = 0.0
@@ -141,6 +152,7 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
       manager.showsBackgroundLocationIndicator = true
     }
     manager.startUpdatingLocation()
+    updating = true
     startActivity()
     resolve(nil)
   }
@@ -151,11 +163,27 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
     resolve(stateMap())
   }
 
+  @objc(getLastLocation:rejecter:)
+  func getLastLocation(_ resolve: @escaping (Any?) -> Void,
+                       rejecter reject: @escaping (String?, String?, Error?) -> Void) {
+    guard Self.isAuthorized(manager.authorizationStatus), let location = manager.location else {
+      resolve(nil)
+      return
+    }
+    resolve([
+      "lat": location.coordinate.latitude,
+      "lng": location.coordinate.longitude,
+      "accuracy": location.horizontalAccuracy,
+      "time": location.timestamp.timeIntervalSince1970 * 1000,
+    ])
+  }
+
   @objc(stop:rejecter:)
   func stop(_ resolve: @escaping (Any?) -> Void,
             rejecter reject: @escaping (String?, String?, Error?) -> Void) {
     let result = stateMap()
     manager.stopUpdatingLocation()
+    updating = false
     if manager.allowsBackgroundLocationUpdates {
       manager.allowsBackgroundLocationUpdates = false
     }
@@ -244,7 +272,7 @@ final class TripTracker: NSObject, CLLocationManagerDelegate {
   private func stateMap() -> [String: Any]? {
     guard let current = state else { return nil }
     return [
-      "active": true,
+      "active": updating,
       "tripId": current.tripId,
       "km": current.accumulator.meters / 1000,
       "points": current.accumulator.points,

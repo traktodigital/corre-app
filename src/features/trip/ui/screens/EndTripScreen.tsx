@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Paperclip } from 'lucide-react-native';
 import type { ScreenProps } from '../../../../app/navigation';
 import { pickFiles } from '../../../../core/device/files';
@@ -14,6 +14,7 @@ import {
   Input,
   ListSkeleton,
   Text,
+  useDialog,
 } from '../../../../shared/ui';
 import { useQuery } from '../../../../shared/hooks/useQuery';
 import { useTheme } from '../../../../shared/theme';
@@ -40,6 +41,7 @@ type EarningForm = { amount: string; rides: string; receipts: LocalFile[] };
 const EMPTY_EARNING: EarningForm = { amount: '', rides: '', receipts: [] };
 
 export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
+  const dialog = useDialog();
   const { tripId } = route.params;
   const { user } = useSession();
   const { colors } = useTheme();
@@ -150,7 +152,7 @@ export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
     if (withoutReceipt.length === 0) {
       return submit();
     }
-    Alert.alert(
+    dialog(
       'Falta comprovante',
       `${withoutReceipt
         .map(appName)

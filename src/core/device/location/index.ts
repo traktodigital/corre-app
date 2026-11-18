@@ -85,3 +85,32 @@ export async function stop(): Promise<TrackerState | null> {
     return null;
   }
 }
+
+export type LastLocation = {
+  lat: number;
+  lng: number;
+  accuracy: number | null;
+};
+
+export async function getLastLocation(): Promise<LastLocation | null> {
+  const native = getTripTrackerModule();
+  if (!native?.getLastLocation) {
+    return null;
+  }
+  try {
+    const raw = (await native.getLastLocation()) as Record<
+      string,
+      unknown
+    > | null;
+    if (!raw || typeof raw.lat !== 'number' || typeof raw.lng !== 'number') {
+      return null;
+    }
+    const accuracy =
+      typeof raw.accuracy === 'number' && raw.accuracy >= 0
+        ? raw.accuracy
+        : null;
+    return { lat: raw.lat, lng: raw.lng, accuracy };
+  } catch {
+    return null;
+  }
+}
