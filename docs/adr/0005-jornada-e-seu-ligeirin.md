@@ -136,7 +136,7 @@ Archon. É preciso mascarar antes de persistir.
      app marcado e a foto do painel.
    - Depois mostra o resumo: **rodou · gastou · fez · sobrou** (`resumo_jornadas`, já testado).
 
-### 6.3 Ajustes no schema (`partes/8-jornada.sql`, ainda não aplicado, então muda sem migração)
+### 6.3 Ajustes no schema (`partes/8-jornada.sql`, aplicado em produção em 17/11/2026; daqui em diante, mudança vira parte nova)
 
 | Tabela | Ajuste |
 |---|---|
