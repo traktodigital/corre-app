@@ -16,7 +16,7 @@ import {
   Text,
   useDialog,
 } from '../../../../shared/ui';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { useSession } from '../../../auth';
 import {
   listDeliveryApps,
@@ -51,7 +51,9 @@ const NO_LOCATION_MESSAGE: Record<
 export function StartTripScreen({ navigation }: ScreenProps<'StartTrip'>) {
   const dialog = useDialog();
   const { user } = useSession();
-  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
+  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps, {
+    staleMs: STALE.reference,
+  });
   const [selectedApps, setSelectedApps] = useState<string[]>([]);
   const [photo, setPhoto] = useState<LocalFile | null>(null);
   const [fuel, setFuel] = useState<Fuel | null>(null);

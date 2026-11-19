@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Bike, Fuel, MapPinOff, Route, Square } from 'lucide-react-native';
+import Bike from 'lucide-react-native/icons/bike';
+import Fuel from 'lucide-react-native/icons/fuel';
+import MapPinOff from 'lucide-react-native/icons/map-pin-off';
+import Route from 'lucide-react-native/icons/route';
+import Square from 'lucide-react-native/icons/square';
 import type { RootNav } from '../../../../app/navigation';
 import { openSettings } from '../../../../core/permissions';
 import { Screen } from '../../../../shared/layout';
@@ -14,7 +18,7 @@ import {
   SectionTitle,
   Text,
 } from '../../../../shared/ui';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { useTheme } from '../../../../shared/theme';
 import { useSession } from '../../../auth';
 import {
@@ -77,7 +81,9 @@ export function TripScreen() {
     userId ? tripQueryKeys.todaySummary(userId) : null,
     fetchTodaySummary,
   );
-  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
+  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps, {
+    staleMs: STALE.reference,
+  });
   const trip = openTripQuery.data ?? null;
   const tracking = useTripTracking(trip?.id ?? null);
   const now = useNow(CLOCK_TICK_MS);

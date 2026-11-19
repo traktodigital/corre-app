@@ -1,5 +1,8 @@
 import { Linking, StyleSheet, View } from 'react-native';
-import { Clock, MapPin, MessageCircle, Store } from 'lucide-react-native';
+import Clock from 'lucide-react-native/icons/clock';
+import MapPin from 'lucide-react-native/icons/map-pin';
+import MessageCircle from 'lucide-react-native/icons/message-circle';
+import Store from 'lucide-react-native/icons/store';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {
@@ -12,7 +15,7 @@ import {
   Text,
 } from '../../../../shared/ui';
 import { onlyDigits } from '../../../../shared/format';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { useTheme } from '../../../../shared/theme';
 import { fetchPartner, listPartnerOffers } from '../../data/clubRepository';
 import { OfferCard } from '../components/OfferCard';
@@ -21,8 +24,12 @@ import { PartnerLogo } from '../components/PartnerLogo';
 export function PartnerScreen({ route, navigation }: ScreenProps<'Partner'>) {
   const { id } = route.params;
   const { colors } = useTheme();
-  const partner = useQuery(`partner:${id}`, () => fetchPartner(id));
-  const offers = useQuery(`partner-offers:${id}`, () => listPartnerOffers(id));
+  const partner = useQuery(`partner:${id}`, () => fetchPartner(id), {
+    staleMs: STALE.catalog,
+  });
+  const offers = useQuery(`partner-offers:${id}`, () => listPartnerOffers(id), {
+    staleMs: STALE.catalog,
+  });
 
   if (partner.loading) {
     return (

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { WifiOff } from 'lucide-react-native';
+import WifiOff from 'lucide-react-native/icons/wifi-off';
 import { Text } from '../../../../shared/ui';
 import { formatDateTime } from '../../../../shared/format';
 import { alpha, palette, useTheme } from '../../../../shared/theme';

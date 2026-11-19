@@ -1,13 +1,11 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {
-  ChevronRight,
-  ClipboardCheck,
-  Gift,
-  IdCard,
-  LucideIcon,
-  Store,
-} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
+import ClipboardCheck from 'lucide-react-native/icons/clipboard-check';
+import Gift from 'lucide-react-native/icons/gift';
+import IdCard from 'lucide-react-native/icons/id-card';
+import Store from 'lucide-react-native/icons/store';
 
 import type { RootNav } from '../../../app/navigation';
 import { Screen, TabKey } from '../../../shared/layout';
@@ -20,7 +18,7 @@ import {
   Text,
 } from '../../../shared/ui';
 import { formatCurrency } from '../../../shared/format';
-import { useQuery } from '../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../shared/hooks/useQuery';
 import { alpha, palette, useTheme } from '../../../shared/theme';
 import { firstName, useSession } from '../../auth';
 import {
@@ -49,8 +47,12 @@ export function HomeScreen({
   const savings = useQuery(userId ? `savings:${userId}` : null, () =>
     fetchSavings(userId!),
   );
-  const offers = useQuery('featured-offers', listFeaturedOffers);
-  const partners = useQuery('partners', listPartners);
+  const offers = useQuery('featured-offers', listFeaturedOffers, {
+    staleMs: STALE.catalog,
+  });
+  const partners = useQuery('partners', listPartners, {
+    staleMs: STALE.catalog,
+  });
 
   return (
     <Screen

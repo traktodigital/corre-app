@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { FileText } from 'lucide-react-native';
+import FileText from 'lucide-react-native/icons/file-text';
 import { Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 

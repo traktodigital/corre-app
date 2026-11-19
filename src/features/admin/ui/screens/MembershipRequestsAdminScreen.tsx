@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ClipboardCheck } from 'lucide-react-native';
+import ClipboardCheck from 'lucide-react-native/icons/clipboard-check';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

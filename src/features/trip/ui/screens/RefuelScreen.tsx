@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Receipt } from 'lucide-react-native';
+import Receipt from 'lucide-react-native/icons/receipt';
 import type { ScreenProps } from '../../../../app/navigation';
 import type { LocalFile } from '../../../../core/device/types';
 import { Screen } from '../../../../shared/layout';

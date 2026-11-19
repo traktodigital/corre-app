@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AlertTriangle, LucideIcon, RotateCw } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import AlertTriangle from 'lucide-react-native/icons/triangle-alert';
+import RotateCw from 'lucide-react-native/icons/rotate-cw';
 import { alpha, palette, useTheme } from '../theme';
 import { Button } from './Button';
 import { IconBox } from './IconBox';

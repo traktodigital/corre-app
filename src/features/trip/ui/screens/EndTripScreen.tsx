@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Paperclip } from 'lucide-react-native';
+import Paperclip from 'lucide-react-native/icons/paperclip';
 import type { ScreenProps } from '../../../../app/navigation';
 import { pickFiles } from '../../../../core/device/files';
 import * as locationTracker from '../../../../core/device/location';
@@ -16,7 +16,7 @@ import {
   Text,
   useDialog,
 } from '../../../../shared/ui';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { useTheme } from '../../../../shared/theme';
 import { useSession } from '../../../auth';
 import {
@@ -49,7 +49,9 @@ export function EndTripScreen({ navigation, route }: ScreenProps<'EndTrip'>) {
     user ? tripQueryKeys.openTrip(user.id) : null,
     fetchOpenTrip,
   );
-  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
+  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps, {
+    staleMs: STALE.reference,
+  });
   const [photo, setPhoto] = useState<LocalFile | null>(null);
   const [odometer, setOdometer] = useState('');
   const [earnings, setEarnings] = useState<Record<string, EarningForm>>({});

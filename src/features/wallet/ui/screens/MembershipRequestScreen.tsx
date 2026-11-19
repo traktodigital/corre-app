@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Check, ClipboardCheck } from 'lucide-react-native';
+import Check from 'lucide-react-native/icons/check';
+import ClipboardCheck from 'lucide-react-native/icons/clipboard-check';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

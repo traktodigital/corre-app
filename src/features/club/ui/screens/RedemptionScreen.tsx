@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { CheckCircle2, Clock, Info, WifiOff } from 'lucide-react-native';
+import CheckCircle2 from 'lucide-react-native/icons/circle-check';
+import Clock from 'lucide-react-native/icons/clock';
+import Info from 'lucide-react-native/icons/info';
+import WifiOff from 'lucide-react-native/icons/wifi-off';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { isFresh, readCache, STALE, writeCache } from './queryCache';
+
+export { STALE } from './queryCache';
 
 export type Query<T> = {
   data: T | undefined;
@@ -18,19 +21,23 @@ type State<T> = {
 export function useQuery<T>(
   key: string | null,
   fetcher: () => Promise<T>,
-  options: { intervalMs?: number } = {},
+  options: { intervalMs?: number; staleMs?: number } = {},
 ): Query<T> {
-  const [state, setState] = useState<State<T>>({
-    key,
-    data: undefined,
-    error: false,
-    loading: key !== null,
+  const [state, setState] = useState<State<T>>(() => {
+    const cached = key === null ? undefined : readCache<T>(key);
+    return {
+      key,
+      data: cached?.data,
+      error: false,
+      loading: key !== null && cached === undefined,
+    };
   });
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
   const keyRef = useRef(key);
   keyRef.current = key;
   const lastRequest = useRef(0);
+  const staleMs = options.staleMs ?? STALE.always;
 
   const reload = useCallback(async (silent = false) => {
     const requestKey = keyRef.current;
@@ -48,6 +55,7 @@ export function useQuery<T>(
     let result: { ok: true; data: T } | { ok: false };
     try {
       result = { ok: true, data: await fetcherRef.current() };
+      writeCache(requestKey, result.data);
     } catch {
       result = { ok: false };
     }
@@ -68,8 +76,11 @@ export function useQuery<T>(
 
   useFocusEffect(
     useCallback(() => {
+      if (key !== null && isFresh(key, staleMs)) {
+        return;
+      }
       reload(true);
-    }, [reload, key]), // eslint-disable-line react-hooks/exhaustive-deps
+    }, [reload, key, staleMs]),
   );
 
   const { intervalMs } = options;
@@ -82,7 +93,8 @@ export function useQuery<T>(
   }, [intervalMs, key, reload]);
 
   const isCurrent = state.key === key;
-  const data = isCurrent ? state.data : undefined;
+  const cached = key === null ? undefined : readCache<T>(key)?.data;
+  const data = isCurrent ? state.data ?? cached : cached;
   return {
     data,
     loading:

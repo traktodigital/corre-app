@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import {
-  BadgePercent,
-  CalendarClock,
-  IdCard,
-  LogIn,
-} from 'lucide-react-native';
+import BadgePercent from 'lucide-react-native/icons/badge-percent';
+import CalendarClock from 'lucide-react-native/icons/calendar-clock';
+import IdCard from 'lucide-react-native/icons/id-card';
+import LogIn from 'lucide-react-native/icons/log-in';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

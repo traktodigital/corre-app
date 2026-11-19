@@ -7,6 +7,8 @@ module.exports = {
     // O preset resolve a build ESM (.mjs); no Jest usamos a CJS.
     '^lucide-react-native$':
       '<rootDir>/node_modules/lucide-react-native/dist/cjs/lucide-react-native.js',
+    '^lucide-react-native/icons/(.*)$':
+      '<rootDir>/node_modules/lucide-react-native/dist/cjs/icons/$1.js',
     // Mesmo alias do metro.config.js (RN 0.87 sem @react-native/assets-registry).
     '^@react-native/assets-registry/registry$':
       '<rootDir>/node_modules/react-native/src/asset-registry.js',

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell } from 'lucide-react-native';
+import Bell from 'lucide-react-native/icons/bell';
 import { useTheme } from '../theme';
 import { Logo } from './Logo';
 

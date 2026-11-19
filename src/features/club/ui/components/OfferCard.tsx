@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Store } from 'lucide-react-native';
+import Store from 'lucide-react-native/icons/store';
 import { Badge, Card, IconBox, Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 import { discountSummary, type Offer } from '../../domain';

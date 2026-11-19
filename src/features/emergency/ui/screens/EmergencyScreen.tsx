@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
-import {
-  MapPin,
-  MapPinOff,
-  MessageCircle,
-  MessageSquare,
-  PhoneCall,
-  UserRound,
-} from 'lucide-react-native';
+import MapPin from 'lucide-react-native/icons/map-pin';
+import MapPinOff from 'lucide-react-native/icons/map-pin-off';
+import MessageCircle from 'lucide-react-native/icons/message-circle';
+import MessageSquare from 'lucide-react-native/icons/message-square';
+import PhoneCall from 'lucide-react-native/icons/phone-call';
+import UserRound from 'lucide-react-native/icons/user-round';
 import type { ScreenProps } from '../../../../app/navigation';
 import {
   getLastLocation,

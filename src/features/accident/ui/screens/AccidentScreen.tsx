@@ -1,5 +1,5 @@
 import { Linking, StyleSheet, View } from 'react-native';
-import { PhoneCall } from 'lucide-react-native';
+import PhoneCall from 'lucide-react-native/icons/phone-call';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import { Button, Text, useDialog } from '../../../../shared/ui';

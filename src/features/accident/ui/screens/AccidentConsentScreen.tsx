@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-import { Clock, MapPinned, MessageCircle, Phone } from 'lucide-react-native';
+import Clock from 'lucide-react-native/icons/clock';
+import MapPinned from 'lucide-react-native/icons/map-pinned';
+import MessageCircle from 'lucide-react-native/icons/message-circle';
+import Phone from 'lucide-react-native/icons/phone';
 import type { ScreenProps } from '../../../../app/navigation';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { Screen } from '../../../../shared/layout';
 import { useTheme } from '../../../../shared/theme';
 import {
@@ -35,7 +38,9 @@ export function AccidentConsentScreen({
   const sender = useQuery(userId ? `3b-sender:${userId}` : null, () =>
     fetchSender(userId!),
   );
-  const consentText = useQuery('3b-consent-text', fetchConsentText);
+  const consentText = useQuery('3b-consent-text', fetchConsentText, {
+    staleMs: STALE.reference,
+  });
   const [step, setStep] = useState<'consent' | 'ready'>('consent');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

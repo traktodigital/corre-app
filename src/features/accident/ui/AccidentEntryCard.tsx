@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Bandage } from 'lucide-react-native';
+import Bandage from 'lucide-react-native/icons/bandage';
 import type { RootNav } from '../../../app/navigation';
-import { useQuery } from '../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../shared/hooks/useQuery';
 import { useTheme } from '../../../shared/theme';
 import { Button, Card, Text } from '../../../shared/ui';
 import { isThreeBRouteEnabled } from '../data/accidentRepository';
@@ -12,7 +12,9 @@ export const THREE_B_FLAG_KEY = 'flag:rota_3b';
 export function AccidentEntryCard() {
   const navigation = useNavigation<RootNav>();
   const { colors } = useTheme();
-  const enabled = useQuery(THREE_B_FLAG_KEY, isThreeBRouteEnabled);
+  const enabled = useQuery(THREE_B_FLAG_KEY, isThreeBRouteEnabled, {
+    staleMs: STALE.catalog,
+  });
 
   if (!enabled.data) {
     return null;

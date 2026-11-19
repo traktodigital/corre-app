@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { clearQueryCache } from '../../../shared/hooks/queryCache';
 import * as authRepository from '../data/authRepository';
 import { passwordResetEmailError } from '../domain/authErrors';
 import {
@@ -116,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await authRepository.signOut();
+    clearQueryCache();
     setIsGuest(false);
   }, []);
 
