@@ -42,6 +42,20 @@ padronizar os nomes e garantir que o app **nunca trave se o usuário negar uma p
   em segundo plano): `Screen fragments should never be restored`. A `MainActivity` agora instala
   a `RNScreensFragmentFactory` antes do `super.onCreate`, como manda o `react-native-screens`.
   Validado no emulador mudando a fonte e com "não manter atividades". Entrou no AAB 8 (1.1.0).
+- **App leve e com pouco gasto de dados (18/11, 1.1.1):**
+  - **R8 ligado** (`minifyEnabled` e `shrinkResources`): dex de 16,4 para 3,1 MB, e o mapa de
+    desofuscação vai dentro do AAB. Regras em `proguard-rules.pro`: manter o pacote
+    `br.com.trakto.corre` (o RN chama o `TripTracker` por reflexão) e `-keepnames` nos fragments
+    do `react-native-screens`, porque a `RNScreensFragmentFactory` reconhece os fragments pelo
+    nome do pacote. Sem isso, o crash da recriação da Activity voltava.
+  - **Ícones do lucide importados um a um** (`lucide-react-native/icons/<nome>`), com regra no
+    ESLint. O pacote inteiro colocava os 1.855 ícones no bundle: de 4,27 para 2,97 MB.
+  - **Cache de consultas em memória** (`shared/hooks/queryCache.ts`): a tela abre com o último
+    dado e revalida por trás. Dados de referência (`STALE.reference`/`catalog`/`immutable`) não
+    vão à rede enquanto estão frescos; os que mudam com ações do usuário revalidam sempre.
+    Limpo no logout. Sessão de 15 trocas de aba: de 43 para 25 KB.
+  - **Fotos** com no máximo 1280 px e qualidade 0,5 (antes 1600 px e 0,6).
+  - **Logo** em 1x/2x/3x quantizado: o AAB entrega só a densidade do aparelho.
 
 ## 4. De/para (para ler as ADRs antigas)
 
