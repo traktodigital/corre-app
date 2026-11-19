@@ -1,13 +1,11 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  Bike,
-  Gift,
-  Home,
-  LucideIcon,
-  User,
-  Wallet,
-} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import Bike from 'lucide-react-native/icons/bike';
+import Gift from 'lucide-react-native/icons/gift';
+import Home from 'lucide-react-native/icons/house';
+import User from 'lucide-react-native/icons/user';
+import Wallet from 'lucide-react-native/icons/wallet';
 import { glow, useTheme } from '../theme';
 import { Text } from '../ui/Text';
 

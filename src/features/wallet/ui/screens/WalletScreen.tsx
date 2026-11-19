@@ -1,5 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import { ClipboardCheck, IdCard, LogIn } from 'lucide-react-native';
+import ClipboardCheck from 'lucide-react-native/icons/clipboard-check';
+import IdCard from 'lucide-react-native/icons/id-card';
+import LogIn from 'lucide-react-native/icons/log-in';
 import type { RootNav } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

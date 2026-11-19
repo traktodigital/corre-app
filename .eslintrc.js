@@ -14,5 +14,18 @@ module.exports = {
         ],
       },
     ],
+    '@typescript-eslint/no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'lucide-react-native',
+            allowTypeImports: true,
+            message:
+              "Importe o ícone direto (lucide-react-native/icons/<nome>): o pacote inteiro coloca os 1.855 ícones no bundle.",
+          },
+        ],
+      },
+    ],
   },
 };

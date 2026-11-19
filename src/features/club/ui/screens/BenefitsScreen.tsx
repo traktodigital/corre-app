@@ -7,7 +7,8 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Search, Store } from 'lucide-react-native';
+import Search from 'lucide-react-native/icons/search';
+import Store from 'lucide-react-native/icons/store';
 import type { RootNav } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {
@@ -18,7 +19,7 @@ import {
   SectionTitle,
   Text,
 } from '../../../../shared/ui';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { alpha, palette, useTheme } from '../../../../shared/theme';
 import {
   listCategories,
@@ -40,9 +41,15 @@ export function BenefitsScreen() {
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const categories = useQuery('categories', listCategories);
-  const partners = useQuery('partners', listPartners);
-  const featured = useQuery('featured-offers', listFeaturedOffers);
+  const categories = useQuery('categories', listCategories, {
+    staleMs: STALE.reference,
+  });
+  const partners = useQuery('partners', listPartners, {
+    staleMs: STALE.catalog,
+  });
+  const featured = useQuery('featured-offers', listFeaturedOffers, {
+    staleMs: STALE.catalog,
+  });
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();

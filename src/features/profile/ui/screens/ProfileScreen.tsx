@@ -1,16 +1,14 @@
 import { Linking, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {
-  ClipboardCheck,
-  History,
-  LogIn,
-  LogOut,
-  Pencil,
-  ShieldCheck,
-  Siren,
-  Trash2,
-  User,
-} from 'lucide-react-native';
+import ClipboardCheck from 'lucide-react-native/icons/clipboard-check';
+import History from 'lucide-react-native/icons/rotate-ccw-clock';
+import LogIn from 'lucide-react-native/icons/log-in';
+import LogOut from 'lucide-react-native/icons/log-out';
+import Pencil from 'lucide-react-native/icons/pencil';
+import ShieldCheck from 'lucide-react-native/icons/shield-check';
+import Siren from 'lucide-react-native/icons/siren';
+import Trash2 from 'lucide-react-native/icons/trash';
+import User from 'lucide-react-native/icons/user';
 import type { RootNav } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import {

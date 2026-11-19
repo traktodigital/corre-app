@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { UserRoundCheck } from 'lucide-react-native';
+import UserRoundCheck from 'lucide-react-native/icons/user-round-check';
 import { Button, Card, Input, Text } from '../../../../shared/ui';
 import {
   formatDateTime,

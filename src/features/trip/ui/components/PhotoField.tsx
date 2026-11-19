@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import { Camera, ImageIcon, Settings } from 'lucide-react-native';
+import Camera from 'lucide-react-native/icons/camera';
+import ImageIcon from 'lucide-react-native/icons/image';
+import Settings from 'lucide-react-native/icons/settings';
 import { Button, Card, Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 import {

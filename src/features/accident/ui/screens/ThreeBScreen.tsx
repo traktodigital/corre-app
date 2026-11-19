@@ -1,5 +1,7 @@
 import { Image, Linking, StyleSheet, View } from 'react-native';
-import { ExternalLink, MapPinned, Quote } from 'lucide-react-native';
+import ExternalLink from 'lucide-react-native/icons/external-link';
+import MapPinned from 'lucide-react-native/icons/map-pinned';
+import Quote from 'lucide-react-native/icons/quote';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Screen } from '../../../../shared/layout';
 import { useTheme } from '../../../../shared/theme';

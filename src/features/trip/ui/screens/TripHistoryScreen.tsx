@@ -1,4 +1,5 @@
-import { Bike, ChevronRight } from 'lucide-react-native';
+import Bike from 'lucide-react-native/icons/bike';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import { memo } from 'react';
 import {
   ActivityIndicator,
@@ -11,7 +12,7 @@ import {
 } from 'react-native';
 import type { ScreenProps } from '../../../../app/navigation';
 import { formatCurrency } from '../../../../shared/format';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { Screen } from '../../../../shared/layout';
 import { palette, useTheme } from '../../../../shared/theme';
 import {
@@ -53,7 +54,9 @@ export function TripHistoryScreen({ navigation }: ScreenProps<'TripHistory'>) {
   const { colors, layout } = useTheme();
   const { user } = useSession();
   const history = useTripHistory(user?.id ?? null);
-  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
+  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps, {
+    staleMs: STALE.reference,
+  });
   const appName = (id: string) => apps.data?.find(a => a.id === id)?.name ?? id;
 
   if (history.trips.length === 0) {

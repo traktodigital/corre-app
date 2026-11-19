@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { MailCheck } from 'lucide-react-native';
+import MailCheck from 'lucide-react-native/icons/mail-check';
 import type { ScreenProps } from '../../../../app/navigation';
 import { Button, Card, IconBox, Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';

@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { Gift, IdCard } from 'lucide-react-native';
+import Gift from 'lucide-react-native/icons/gift';
+import IdCard from 'lucide-react-native/icons/id-card';
 
 import type { ScreenProps } from '../../../../app/navigation';
 import { Button, Card, IconBox, Text } from '../../../../shared/ui';

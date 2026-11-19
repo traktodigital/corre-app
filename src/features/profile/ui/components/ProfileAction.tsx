@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
-import { ChevronRight, LucideIcon } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import { Card, Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 

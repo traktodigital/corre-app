@@ -1,4 +1,5 @@
-import { Eye, EyeOff } from 'lucide-react-native';
+import Eye from 'lucide-react-native/icons/eye';
+import EyeOff from 'lucide-react-native/icons/eye-off';
 import { ComponentRef, Ref, useState } from 'react';
 import {
   Pressable,

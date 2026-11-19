@@ -1,5 +1,5 @@
 import { Image } from 'react-native';
-import { Store } from 'lucide-react-native';
+import Store from 'lucide-react-native/icons/store';
 import { IconBox } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 

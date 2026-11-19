@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { CheckCircle2 } from 'lucide-react-native';
+import CheckCircle2 from 'lucide-react-native/icons/circle-check';
 import { Text } from '../../../../shared/ui';
 import { alpha, palette, useTheme } from '../../../../shared/theme';
 

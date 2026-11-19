@@ -1,4 +1,7 @@
-import { Bike, ChevronLeft, Fuel, Package } from 'lucide-react-native';
+import Bike from 'lucide-react-native/icons/bike';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import Fuel from 'lucide-react-native/icons/fuel';
+import Package from 'lucide-react-native/icons/package';
 import { ReactNode, useState } from 'react';
 import {
   Pressable,
@@ -11,7 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ScreenProps } from '../../../../app/navigation';
 import { formatCurrency } from '../../../../shared/format';
-import { useQuery } from '../../../../shared/hooks/useQuery';
+import { STALE, useQuery } from '../../../../shared/hooks/useQuery';
 import { alpha, palette, useTheme } from '../../../../shared/theme';
 import {
   Button,
@@ -83,11 +86,15 @@ export function TripSummaryScreen({
   const { colors, layout } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const summary = useQuery(tripQueryKeys.tripSummary(tripId), () =>
-    fetchTripSummary(tripId),
+  const summary = useQuery(
+    tripQueryKeys.tripSummary(tripId),
+    () => fetchTripSummary(tripId),
+    { staleMs: STALE.catalog },
   );
-  const period = useQuery(tripQueryKeys.tripPeriod(tripId), () =>
-    fetchTripPeriod(tripId),
+  const period = useQuery(
+    tripQueryKeys.tripPeriod(tripId),
+    () => fetchTripPeriod(tripId),
+    { staleMs: STALE.catalog },
   );
   const routePath = period.data?.routePath ?? null;
   const routeSource = routeFile ?? routePath;
@@ -95,8 +102,11 @@ export function TripSummaryScreen({
     routeSource ? tripQueryKeys.route(routeSource) : null,
     () =>
       routeFile ? readRouteFile(routeFile) : downloadRoute(routePath ?? ''),
+    { staleMs: STALE.immutable },
   );
-  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps);
+  const apps = useQuery(tripQueryKeys.deliveryApps, listDeliveryApps, {
+    staleMs: STALE.reference,
+  });
   const [pastHero, setPastHero] = useState(false);
   const appName = (id: string) => apps.data?.find(a => a.id === id)?.name ?? id;
 

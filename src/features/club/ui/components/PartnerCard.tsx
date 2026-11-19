@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ChevronRight, Star } from 'lucide-react-native';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
+import Star from 'lucide-react-native/icons/star';
 import { Card, Text } from '../../../../shared/ui';
 import { useTheme } from '../../../../shared/theme';
 import type { PartnerSummary } from '../../domain';
